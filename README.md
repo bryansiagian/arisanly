@@ -4,7 +4,7 @@
 
 Arisanly is a web app for managing **arisan** (rotating savings groups) and **kas kelompok** (shared group cash funds). It keeps a correct, auditable record of who has paid, whose turn it is, and where every rupiah went. Mobile-first and in Indonesian.
 
-> 🚧 **Status: in development.** This README describes the planned product and how to run it. See the [roadmap](#roadmap) for progress.
+> 🚧 **Status: in development.** The local scaffold includes the API health endpoint and a web landing page. See the [roadmap](#roadmap) for planned features.
 >
 > ⚠️ **Arisanly never holds or moves money.** Members pay outside the app (cash, transfer, QRIS). Arisanly only records and verifies.
 
@@ -104,25 +104,21 @@ Invariants: each transaction sums to zero; `FUND` and `MEMBER` balances never go
 
 ## Getting Started
 
-> These instructions describe the planned setup and will be finalized in milestone M0.
-
 ### Prerequisites
 
-- Go (latest stable)
-- Node.js (LTS) and pnpm
-- Docker and Docker Compose
-- `make`
+- Docker and Docker Compose v2 for the full stack.
+- Go 1.26, Node.js 24, pnpm 11.25.0, and Make for host development.
 
 ### Run the full stack with Docker
 
 ```bash
 git clone https://github.com/bryansiagian/arisanly.git
 cd arisanly
-cp .env.example .env        # fill in the values
+cp .env.example .env
 docker compose up --build
 ```
 
-Then open the web app at `http://localhost:3000`. The API listens on `http://localhost:8080`; check it with `curl http://localhost:8080/healthz`.
+Then open the web app at `http://localhost:3000`. Check the API with `curl http://localhost:8080/healthz`. Compose runs the versioned PostgreSQL migration before starting the API and worker. In PowerShell, use `Copy-Item .env.example .env` to copy the example configuration.
 
 ### Run in development mode
 
@@ -130,32 +126,30 @@ Then open the web app at `http://localhost:3000`. The API listens on `http://loc
 cp .env.example .env
 docker compose up -d db redis        # PostgreSQL and Redis only
 make migrate-up                      # apply database migrations
-make dev-api                         # Go API with live reload
-make dev-worker                      # background worker
-cd apps/web && pnpm install && pnpm dev
+
+# Run each of the following in a separate terminal at the repo root.
+make dev-api
+make dev-worker
+cd apps/web && pnpm install --frozen-lockfile && pnpm dev
 ```
 
 ### Useful commands
 
 | Task | Command |
 |---|---|
-| API unit tests | `make test` |
-| API integration tests (real PostgreSQL and Redis) | `make test-integration` |
-| Lint (Go) | `make lint` |
-| Web tests | `cd apps/web && pnpm test` |
-| New migration | `make migrate-new name=<short_name>` |
+| Compile and run Go tests | `make test` |
+| Go static checks | `make lint` |
+| Web lint and type checks | `cd apps/web && pnpm lint && pnpm typecheck` |
+| Web production build | `cd apps/web && pnpm build` |
 
 ### Environment variables
 
-Copy `.env.example` to `.env`. Never commit your real `.env`.
+Copy `.env.example` to `.env` for local Compose. The example database credentials are intended for local development. Keep real environment files out of Git.
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `REDIS_URL` | Redis connection string |
-| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Token signing secrets |
-| `CORS_ORIGIN`, `COOKIE_DOMAIN` | CORS and cookie settings |
-| `NEXT_PUBLIC_API_URL` | API URL used by the browser |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Local database and migration credentials |
+| `API_PORT`, `WEB_PORT`, `POSTGRES_PORT`, `REDIS_PORT` | Ports published to the host by Compose |
 
 ## Project Structure
 
@@ -176,7 +170,7 @@ Copy `.env.example` to `.env`. Never commit your real `.env`.
 
 ## Roadmap
 
-- [ ] **M0** Repository setup: Go API, Next.js, Docker Compose, CI skeleton, health check
+- [x] **M0** Repository setup: Go API, Next.js, Docker Compose, CI skeleton, health check
 - [ ] **M1** Authentication
 - [ ] **M2** Groups, members, invite link
 - [ ] **M3** Ledger core with invariants and tests
