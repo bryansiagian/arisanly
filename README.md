@@ -173,6 +173,16 @@ Invitations expire after seven days. The owner sets a quota from 1 to 100 uses. 
 
 Run `node scripts/groups-smoke.mjs` against the running local stack to verify group permissions and concurrent invite redemption.
 
+## Ledger core
+
+The Go package in `apps/api/internal/ledger` records dues, payments, payouts, expenses, and corrections inside the caller's PostgreSQL transaction. Amounts are whole rupiah. Debits are positive and credits are negative. PostgreSQL rejects unbalanced postings, changes to posted history, and negative fund or member receivable balances.
+
+Postings take a group lock before reading the idempotency record and updating accounts. A retry with the same group, key, and request returns the original transaction ID. A different request under the same key is rejected. A correction requires a reason, mirrors the original amounts, and is rejected if it would violate a balance constraint. Reconciliation reports any difference between cached balances and the sum of entries.
+
+The core has no new UI or write endpoints. Later milestones connect postings to business events and authorization, add uniqueness by claim and round, and schedule reconciliation in the worker.
+
+Run the integration suite with `go test -race -count=1 -v ./internal/ledger` from `apps/api`. Set `LEDGER_TEST_DATABASE_URL` to a disposable PostgreSQL database with the migrations applied. The tests add ledger history to that database.
+
 ## Project Structure
 
 ```
@@ -195,7 +205,7 @@ Run `node scripts/groups-smoke.mjs` against the running local stack to verify gr
 - [x] **M0** Repository setup: Go API, Next.js, Docker Compose, CI skeleton, health check
 - [x] **M1** Authentication
 - [x] **M2** Groups, members, invite link
-- [ ] **M3** Ledger core with invariants and tests
+- [x] **M3** Ledger core with invariants and tests
 - [ ] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
 - [ ] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
 - [ ] **M6** Kas mode, reports, CSV export, public share link
