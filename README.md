@@ -165,6 +165,14 @@ Copy `.env.example` to `.env` for local Compose. The example database credential
 
 The browser uses same-origin routes under `/api/v1/auth` served by Next.js. Go issues a 15-minute JWT and a refresh cookie backed by a PostgreSQL session with a seven-day absolute lifetime. Refresh replaces the stored token hash atomically, and logout revokes the session. Both cookies are HttpOnly. For HTTPS deployment, supply a unique random signing secret and keep secure cookies enabled.
 
+## Groups and invitations
+
+From `/dasbor`, create an Arisan or Kas group and open it to see the member list. The owner can rename the group, manage member roles, and issue an invitation. Members can leave, and the owner can remove other members. Ownership cannot be transferred in this milestone. In the arisan and cash workflows, the owner will also have treasurer permissions.
+
+Invitations expire after seven days. The owner sets a quota from 1 to 100 uses. The share link and code appear when the invite is issued. The database stores its hash, so save the link before closing the group. Recipients can use the link or enter the code at `/gabung`. If signed out, they can sign in in a separate tab and return to the invitation.
+
+Run `node scripts/groups-smoke.mjs` against the running local stack to verify group permissions and concurrent invite redemption.
+
 ## Project Structure
 
 ```
@@ -186,7 +194,7 @@ The browser uses same-origin routes under `/api/v1/auth` served by Next.js. Go i
 
 - [x] **M0** Repository setup: Go API, Next.js, Docker Compose, CI skeleton, health check
 - [x] **M1** Authentication
-- [ ] **M2** Groups, members, invite link
+- [x] **M2** Groups, members, invite link
 - [ ] **M3** Ledger core with invariants and tests
 - [ ] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
 - [ ] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
