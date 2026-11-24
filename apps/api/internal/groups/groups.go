@@ -37,12 +37,15 @@ func Routes(r chi.Router, db *pgxpool.Pool, authenticate func(http.Handler) http
 	r.Use(authenticate)
 	r.Get("/", h.list)
 	r.Post("/", h.create)
+	r.Post("/join", h.join)
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.detail)
 		r.Patch("/", h.rename)
 		r.Get("/members", h.members)
 		r.Patch("/members/{userId}", h.memberRole)
 		r.Delete("/members/{userId}", h.remove)
+		r.Get("/invites", h.invites)
+		r.Post("/invites", h.invite)
 	})
 }
 
