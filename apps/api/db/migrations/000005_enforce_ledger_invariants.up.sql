@@ -12,6 +12,17 @@ CREATE TRIGGER ledger_entries_immutable
 BEFORE UPDATE OR DELETE OR TRUNCATE ON arisanly.ledger_entries
 FOR EACH STATEMENT EXECUTE FUNCTION arisanly.reject_ledger_mutation();
 
+CREATE FUNCTION arisanly.set_posting_xid() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    NEW.posting_xid := pg_current_xact_id();
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER set_posting_xid
+BEFORE INSERT ON arisanly.transactions
+FOR EACH ROW EXECUTE FUNCTION arisanly.set_posting_xid();
+
 CREATE FUNCTION arisanly.apply_ledger_entry() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     IF NOT EXISTS (
