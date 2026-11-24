@@ -50,6 +50,10 @@ services:
 
   api:
     <<: *go-service
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-arisanly-local-dev-key-change-before-production}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
     ports:
       - "127.0.0.1:${API_PORT:-8080}:8080"
     healthcheck:
@@ -64,6 +68,11 @@ services:
 
   web:
     build: ./apps/web
+    environment:
+      API_INTERNAL_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
     ports:
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
 

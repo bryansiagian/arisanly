@@ -7,10 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
 )
 
 func main() {
@@ -20,16 +24,55 @@ func main() {
 		port = "8080"
 	}
 
+	if err := serve(port); err != nil {
+		slog.Error("API stopped", "error", err)
+		os.Exit(1)
+	}
+}
+
+func serve(port string) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		return errors.New("DATABASE_URL is required")
+	}
+	secureCookies := true
+	if setting := os.Getenv("AUTH_COOKIE_SECURE"); setting != "" {
+		var err error
+		secureCookies, err = strconv.ParseBool(setting)
+		if err != nil {
+			return errors.New("AUTH_COOKIE_SECURE must be a boolean")
+		}
+	}
+	db, err := pgxpool.New(ctx, databaseURL)
+	if err != nil {
+		return errors.New("invalid DATABASE_URL")
+	}
+	defer db.Close()
+	startup, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.Ping(startup); err != nil {
+		return errors.New("database connection failed")
+	}
+	authRoutes, err := auth.New(db, os.Getenv("JWT_ACCESS_SECRET"), secureCookies)
+	if err != nil {
+		return err
+	}
+
 	router := chi.NewRouter()
 	router.Get("/healthz", health)
+	router.Route("/api/v1/auth", authRoutes.Routes)
 	server := &http.Server{
 		Addr:              ":" + port,
-		Handler:           router,
+		Handler:           http.NewCrossOriginProtection().Handler(router),
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 	serverErrors := make(chan error, 1)
 	go func() {
 		slog.Info("API listening", "port", port)
@@ -39,17 +82,14 @@ func main() {
 	select {
 	case err := <-serverErrors:
 		if !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("API failed", "error", err)
-			os.Exit(1)
+			return err
 		}
 	case <-ctx.Done():
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := server.Shutdown(shutdown); err != nil {
-			slog.Error("API shutdown failed", "error", err)
-			os.Exit(1)
-		}
+		return server.Shutdown(shutdown)
 	}
+	return nil
 }
 
 func health(w http.ResponseWriter, _ *http.Request) {
