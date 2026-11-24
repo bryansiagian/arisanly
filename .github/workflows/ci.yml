@@ -16,7 +16,7 @@ jobs:
           cache-dependency-path: apps/api/go.sum
       - working-directory: apps/api
         run: |
-          test -z "$(gofmt -l cmd)"
+          test -z "$(gofmt -l cmd internal)"
           go vet ./...
           go test ./...
 
@@ -40,6 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: cp .env.example .env
       - run: docker compose up --build --detach --wait --wait-timeout 90
       - run: |
@@ -47,6 +50,7 @@ jobs:
           curl --fail --silent --show-error --retry 10 --retry-connrefused http://127.0.0.1:3000/ -o /tmp/arisanly.html
           grep -q Arisanly /tmp/arisanly.html
           docker compose exec -T db psql -U arisanly -d arisanly -Atc "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'arisanly'" | grep -Fx arisanly
+      - run: node scripts/auth-smoke.mjs
       - if: failure()
         run: docker compose logs
       - if: always()
