@@ -77,7 +77,7 @@ func (h *Handler) Routes(r chi.Router) {
 	r.Post("/login", h.limitHashing(h.login))
 	r.Post("/refresh", h.refresh)
 	r.Post("/logout", h.logout)
-	r.Get("/me", h.me)
+	r.With(h.RequireUser).Get("/me", h.me)
 }
 
 func (h *Handler) limitHashing(next http.HandlerFunc) http.HandlerFunc {
@@ -250,27 +250,41 @@ func (h *Handler) access(r *http.Request) (*accessClaims, error) {
 	return parseAccess(h.secret, cookie.Value)
 }
 
-func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
-	claims, err := h.access(r)
-	if err != nil {
-		fail(w, http.StatusUnauthorized, "session_expired")
-		return
-	}
-	var account user
-	err = h.db.QueryRow(r.Context(), `
+type actorKey struct{}
+
+func UserID(ctx context.Context) string {
+	account, _ := ctx.Value(actorKey{}).(user)
+	return account.ID
+}
+
+func (h *Handler) RequireUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		claims, err := h.access(r)
+		if err != nil {
+			fail(w, http.StatusUnauthorized, "session_expired")
+			return
+		}
+		var account user
+		err = h.db.QueryRow(r.Context(), `
 		SELECT u.id, u.name, u.email FROM arisanly.users u
 		JOIN arisanly.refresh_tokens s ON s.user_id = u.id
 		WHERE u.id = $1 AND s.id = $2 AND s.revoked_at IS NULL AND s.expires_at > now()`,
-		claims.Subject, claims.SessionID).Scan(&account.ID, &account.Name, &account.Email)
-	if errors.Is(err, pgx.ErrNoRows) {
-		fail(w, http.StatusUnauthorized, "session_expired")
-		return
-	}
-	if err != nil {
-		internal(w, err)
-		return
-	}
-	respond(w, http.StatusOK, account)
+			claims.Subject, claims.SessionID).Scan(&account.ID, &account.Name, &account.Email)
+		if errors.Is(err, pgx.ErrNoRows) {
+			fail(w, http.StatusUnauthorized, "session_expired")
+			return
+		}
+		if err != nil {
+			internal(w, err)
+			return
+		}
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), actorKey{}, account)))
+	})
+}
+
+func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
+	respond(w, http.StatusOK, r.Context().Value(actorKey{}).(user))
 }
 
 func (h *Handler) sendSession(w http.ResponseWriter, userID, sessionID, refresh string, expires time.Time) {

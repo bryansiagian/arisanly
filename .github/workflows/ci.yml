@@ -51,6 +51,7 @@ jobs:
           grep -q Arisanly /tmp/arisanly.html
           docker compose exec -T db psql -U arisanly -d arisanly -Atc "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'arisanly'" | grep -Fx arisanly
       - run: node scripts/auth-smoke.mjs
+      - run: node scripts/groups-smoke.mjs
       - if: failure()
         run: docker compose logs
       - if: always()
