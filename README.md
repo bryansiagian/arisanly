@@ -4,7 +4,7 @@
 
 Arisanly is a web app for managing **arisan** (rotating savings groups) and **kas kelompok** (shared group cash funds). It keeps a correct, auditable record of who has paid, whose turn it is, and where every rupiah went. Mobile-first and in Indonesian.
 
-> 🚧 **Status: in development.** The local scaffold includes the API health endpoint and a web landing page. See the [roadmap](#roadmap) for planned features.
+> 🚧 **Status: in development.** The local app includes the API health endpoint, a landing page, and account authentication. See the [roadmap](#roadmap) for planned features.
 >
 > ⚠️ **Arisanly never holds or moves money.** Members pay outside the app (cash, transfer, QRIS). Arisanly only records and verifies.
 
@@ -118,7 +118,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Then open the web app at `http://localhost:3000`. Check the API with `curl http://localhost:8080/healthz`. Compose runs the versioned PostgreSQL migration before starting the API and worker. In PowerShell, use `Copy-Item .env.example .env` to copy the example configuration.
+Then open the web app at `http://localhost:3000`. Check the API with `curl http://localhost:8080/healthz`. Compose runs the versioned PostgreSQL migrations before starting the API and worker. Open /daftar to create an account, /masuk to sign in, and /dasbor to view the protected dashboard. In PowerShell, use `Copy-Item .env.example .env` to copy the example configuration.
 
 ### Run in development mode
 
@@ -127,8 +127,13 @@ cp .env.example .env
 docker compose up -d db redis        # PostgreSQL and Redis only
 make migrate-up                      # apply database migrations
 
-# Run each of the following in a separate terminal at the repo root.
+# API terminal (default local database and ports)
+export DATABASE_URL='postgres://arisanly:arisanly_local@localhost:5432/arisanly?sslmode=disable'
+export JWT_ACCESS_SECRET='arisanly-local-dev-key-change-before-production'
+export AUTH_COOKIE_SECURE=false
 make dev-api
+
+# Run each of the following in a separate terminal at the repo root.
 make dev-worker
 cd apps/web && pnpm install --frozen-lockfile && pnpm dev
 ```
@@ -141,6 +146,7 @@ cd apps/web && pnpm install --frozen-lockfile && pnpm dev
 | Go static checks | `make lint` |
 | Web lint and type checks | `cd apps/web && pnpm lint && pnpm typecheck` |
 | Web production build | `cd apps/web && pnpm build` |
+| Auth smoke test against the running stack | `node scripts/auth-smoke.mjs` |
 
 ### Environment variables
 
@@ -150,6 +156,14 @@ Copy `.env.example` to `.env` for local Compose. The example database credential
 |---|---|
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Local database and migration credentials |
 | `API_PORT`, `WEB_PORT`, `POSTGRES_PORT`, `REDIS_PORT` | Ports published to the host by Compose |
+| `JWT_ACCESS_SECRET` | JWT signing key, at least 32 bytes |
+| `AUTH_COOKIE_SECURE` | Keep `true` for HTTPS. Use `false` for local HTTP development. |
+| `DATABASE_URL` | PostgreSQL URL for the Go API. Compose constructs it from the local database settings. |
+| `API_INTERNAL_URL` | Backend URL used by Next.js. Compose sets the service URL, and host development defaults to `http://127.0.0.1:8080`. |
+
+## Authentication
+
+The browser uses same-origin routes under `/api/v1/auth` served by Next.js. Go issues a 15-minute JWT and a refresh cookie backed by a PostgreSQL session with a seven-day absolute lifetime. Refresh replaces the stored token hash atomically, and logout revokes the session. Both cookies are HttpOnly. For HTTPS deployment, supply a unique random signing secret and keep secure cookies enabled.
 
 ## Project Structure
 
@@ -171,7 +185,7 @@ Copy `.env.example` to `.env` for local Compose. The example database credential
 ## Roadmap
 
 - [x] **M0** Repository setup: Go API, Next.js, Docker Compose, CI skeleton, health check
-- [ ] **M1** Authentication
+- [x] **M1** Authentication
 - [ ] **M2** Groups, members, invite link
 - [ ] **M3** Ledger core with invariants and tests
 - [ ] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
