@@ -7,7 +7,7 @@ CREATE TABLE arisanly.accounts (
     UNIQUE (group_id, id),
     UNIQUE NULLS NOT DISTINCT (group_id, kind, member_user_id),
     CHECK ((kind = 'MEMBER') = (member_user_id IS NOT NULL)),
-    CHECK (kind NOT IN ('FUND', 'MEMBER') OR balance >= 0)
+    CONSTRAINT account_nonnegative CHECK (kind NOT IN ('FUND', 'MEMBER') OR balance >= 0)
 );
 
 CREATE TABLE arisanly.transactions (
