@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
+	"github.com/bryansiagian/arisanly/apps/api/internal/groups"
 )
 
 func main() {
@@ -64,6 +65,7 @@ func serve(port string) error {
 	router := chi.NewRouter()
 	router.Get("/healthz", health)
 	router.Route("/api/v1/auth", authRoutes.Routes)
+	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser) })
 	server := &http.Server{
 		Addr:              ":" + port,
 		Handler:           http.NewCrossOriginProtection().Handler(router),
