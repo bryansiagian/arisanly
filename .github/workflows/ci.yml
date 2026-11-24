@@ -43,6 +43,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
       - run: cp .env.example .env
       - run: docker compose up --build --detach --wait --wait-timeout 90
       - run: |
@@ -52,6 +56,10 @@ jobs:
           docker compose exec -T db psql -U arisanly -d arisanly -Atc "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'arisanly'" | grep -Fx arisanly
       - run: node scripts/auth-smoke.mjs
       - run: node scripts/groups-smoke.mjs
+      - working-directory: apps/api
+        env:
+          LEDGER_TEST_DATABASE_URL: postgres://arisanly:arisanly_local@127.0.0.1:5432/arisanly?sslmode=disable
+        run: go test -race -count=1 -v ./internal/ledger
       - if: failure()
         run: docker compose logs
       - if: always()
