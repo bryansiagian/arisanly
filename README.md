@@ -131,10 +131,15 @@ make migrate-up                      # apply database migrations
 export DATABASE_URL='postgres://arisanly:arisanly_local@localhost:5432/arisanly?sslmode=disable'
 export JWT_ACCESS_SECRET='arisanly-local-dev-key-change-before-production'
 export AUTH_COOKIE_SECURE=false
+export REDIS_URL='redis://127.0.0.1:6379/0'
 make dev-api
 
-# Run each of the following in a separate terminal at the repo root.
+# Worker terminal (default local database and Redis ports)
+export DATABASE_URL='postgres://arisanly:arisanly_local@localhost:5432/arisanly?sslmode=disable'
+export REDIS_URL='redis://127.0.0.1:6379/0'
 make dev-worker
+
+# Web terminal
 cd apps/web && pnpm install --frozen-lockfile && pnpm dev
 ```
 
@@ -179,7 +184,7 @@ The Go package in `apps/api/internal/ledger` records dues, payments, payouts, ex
 
 Postings take a group lock before reading the idempotency record and updating accounts. A retry with the same group, key, and request returns the original transaction ID. A different request under the same key is rejected. A correction requires a reason, mirrors the original amounts, and is rejected if it would violate a balance constraint. Reconciliation reports any difference between cached balances and the sum of entries.
 
-The core has no new UI or write endpoints. Later milestones connect postings to business events and authorization, add uniqueness by claim and round, and schedule reconciliation in the worker.
+The core has no new UI or write endpoints. Arisan handlers connect these postings to authorized claims and rounds. The worker schedules reconciliation hourly.
 
 Run the integration suite with `go test -race -count=1 -v ./internal/ledger` from `apps/api`. Set `LEDGER_TEST_DATABASE_URL` to a disposable PostgreSQL database with the migrations applied. The tests add ledger history to that database.
 
@@ -190,6 +195,16 @@ Open an Arisan group in `/dasbor`. The owner sets the contribution, first due da
 The first round opens immediately. The owner or treasurer can reject a claim so the participant can submit it again. Once all contributions are confirmed and the recipient is assigned, the owner or treasurer records the payout. Closing the paid round immediately opens the next round or completes the cycle. Monthly due dates are calculated from the first due date and clamp to the last day of shorter months.
 
 The dashboard shows the latest cycle and the group's audit history, including draw candidates and the selected recipient. Payment confirmations and payouts require an `Idempotency-Key`. Run `node scripts/arisan-smoke.mjs` against the local stack to exercise a full two-round cycle.
+
+## API hardening and reconciliation
+
+The API uses Redis for rate limits, short-lived leases, and a five-minute cache of committed confirmation and payout responses. Cache hits still require an active session and current owner or treasurer permissions. PostgreSQL group locks, stored transaction keys, and claim and round state remain authoritative for financial writes. If Redis is unavailable, the API falls back to PostgreSQL and the existing local password-hashing concurrency guard. Redis-backed rate limits and the worker queue resume when Redis returns.
+
+Registration and login are limited to 5 and 10 attempts per normalized email per minute respectively. Arisan operations that draw a recipient or post ledger entries are limited to 180 per user per minute. A limited request returns HTTP 429 and `Retry-After`.
+
+The Asynq worker schedules ledger reconciliation at the top of every UTC hour. It compares stored balances with the ledger, logs discrepancies, and retries query failures. `/healthz` reports liveness and `/readyz` checks PostgreSQL connectivity. API responses include an `X-Request-ID` for tracing.
+
+CI runs 100 concurrent retries of a single payment confirmation and exercises a full arisan cycle while Redis is stopped.
 
 ## Project Structure
 
@@ -215,7 +230,7 @@ The dashboard shows the latest cycle and the group's audit history, including dr
 - [x] **M2** Groups, members, invite link
 - [x] **M3** Ledger core with invariants and tests
 - [x] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
-- [ ] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
+- [x] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
 - [ ] **M6** Kas mode, reports, CSV export, public share link
 - [ ] **M7** Reminders and UX polish
 - [ ] **M8** Public deployment and pilot with a real group
