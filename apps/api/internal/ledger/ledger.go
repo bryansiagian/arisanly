@@ -22,6 +22,7 @@ const (
 	Payment  Event = "PAYMENT"
 	Payout   Event = "PAYOUT"
 	Expense  Event = "EXPENSE"
+ Income Event = "INCOME"
 	reversal Event = "REVERSAL"
 )
 
@@ -90,7 +91,9 @@ func Post(ctx context.Context, tx pgx.Tx, posting Posting) (Receipt, error) {
 		debit, credit = "FUND", "MEMBER"
 	case Payout:
 		debit, credit = "PAYOUT", "FUND"
-	case Expense:
+	case Income:
+ debit, credit = "FUND", "OTHER_INCOME"
+ case Expense:
 		debit, credit = "EXPENSE", "FUND"
 	default:
 		return Receipt{}, ErrInvalid
