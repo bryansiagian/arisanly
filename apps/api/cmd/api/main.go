@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/hardening"
+	"github.com/bryansiagian/arisanly/apps/api/internal/reminders"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -97,6 +98,7 @@ func serve(port string) error {
 	router.Get("/api/v1/public/g/{code}", groups.PublicReport(db))
 	router.Route("/api/v1/auth", authRoutes.Routes)
 	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser, guard) })
+	router.Route("/api/v1/reminders", func(r chi.Router) { reminders.Routes(r, db, authRoutes.RequireUser) })
 	server := &http.Server{
 		Addr:              ":" + port,
 		Handler:           router,
