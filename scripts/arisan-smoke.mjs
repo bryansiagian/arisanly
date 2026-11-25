@@ -65,6 +65,7 @@ async function playRound(expectedDate, rejectFirst) {
   await expect(409, request(roundPath + "/payout", owner, {}, randomUUID()), "uncollected payout");
 
   for (const actor of [owner, payer]) {
+    const copies = rejectFirst && actor === owner && process.env.ARISAN_CONCURRENCY === "100" ? 100 : 2;
     let { rounds: [current] } = await rounds();
     let due = current.obligations.find(({ memberId }) => memberId === actor.id);
     const claimPath = group + `/obligations/${due.id}/claims`;
@@ -83,10 +84,8 @@ async function playRound(expectedDate, rejectFirst) {
     const confirmPath = group + `/claims/${due.claimId}/confirm`;
     const key = randomUUID();
     await expect(403, request(confirmPath, payer, {}, key), "member cannot confirm");
-    await Promise.all([
-      expect(204, request(confirmPath, owner, {}, key), "confirm"),
-      expect(204, request(confirmPath, owner, {}, key), "idempotent confirmation"),
-    ]);
+    await Promise.all(Array.from({ length: copies }, (_, index) =>
+      expect(204, request(confirmPath, owner, {}, key), `confirmation retry ${index + 1}`)));
     await expect(409, request(confirmPath, owner, {}, randomUUID()), "duplicate payment with different key");
   }
   assert.equal((await rounds()).rounds[0].status, "COLLECTED");
