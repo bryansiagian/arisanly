@@ -39,7 +39,7 @@ export async function forward(request: Request, path: string, body?: string) {
   try {
     const upstream = await internalAPI(path, { method: request.method, headers, body });
     const responseHeaders = new Headers({ "Cache-Control": "no-store" });
-    for (const name of ["content-type", "retry-after", "x-request-id"]) {
+    for (const name of ["content-type", "content-disposition", "retry-after", "x-request-id"]) {
       const value = upstream.headers.get(name);
       if (value) responseHeaders.set(name, value);
     }

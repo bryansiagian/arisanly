@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import Arisan from "./arisan";
+import Reports from "./reports";
 
 type Group = { id: string; name: string; type: "ARISAN" | "KAS"; role: string };
 type Member = { id: string; name: string; role: string };
@@ -145,6 +146,7 @@ export default function Groups({ userID }: { userID: string }) {
           {selected.type === "ARISAN" && (
             <Arisan key={selected.id} group={selected} members={members} userID={userID} request={groupRequest} />
           )}
+          <Reports key={selected.id} group={selected} request={groupRequest} />
           <h4 className="font-medium">Anggota</h4>
           <ul className="space-y-2">
             {members.map((member) => <li key={member.id} className="flex flex-wrap items-center gap-2">
