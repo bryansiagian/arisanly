@@ -82,7 +82,7 @@ Priority: **P0** = MVP must-have, **P1** = should-have, **P2** = nice-to-have.
 - Running balance, per-member status (paid, late, owed), and a monthly recap.
 
 ### 5.5 Reminders and Notifications (P1)
-- Scheduled background reminders: before due date, on due date, when overdue.
+- Scheduled background reminders: once within three days before the due date, once on the due date, and once when overdue, using WIB.
 - In-app notifications; a ready-to-send WhatsApp message (`wa.me` link with prefilled text) for the treasurer to nudge late members with one tap.
 - Email notifications (P2).
 
@@ -230,6 +230,7 @@ Key constraints: `UNIQUE(group_id, idempotency_key)` on `transactions`; `UNIQUE(
 | Kas (P1) | `POST /groups/:id/expenses`, `POST /groups/:id/income`, `GET /groups/:id/summary?month=YYYY-MM`, `POST /groups/:id/kas/schedule`, `POST /groups/:id/kas/periods`, `POST /groups/:id/kas/dues/:dueId/pay` |
 | Ledger and audit | `GET /groups/:id/ledger`, `GET /groups/:id/audit`, `POST /transactions/:id/reverse` |
 | Reports (P1) | `GET /groups/:id/export.csv`, `POST/DELETE /groups/:id/share`, `GET /public/g/:shareCode` |
+| Reminders | `GET /reminders`, `PATCH /reminders/:id/read` |
 | System | `GET /healthz`, `GET /readyz` |
 
 Money-affecting `POST` endpoints (`confirm`, `payout`, `expenses`, `income`, `reverse`) require the `Idempotency-Key` header.

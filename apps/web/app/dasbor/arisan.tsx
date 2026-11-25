@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { isOverdue, paymentNudge } from "../../lib/payment-nudge";
 
 type Obligation = {
   id: string; memberId: string; name: string; amount: string;
@@ -32,7 +33,7 @@ const actions: Record<string, string> = {
 const currency = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
 export default function Arisan({ group, members, userID, request }: {
-  group: { id: string; role: string };
+  group: { id: string; name: string; role: string };
   members: { id: string; name: string }[];
   userID: string;
   request: Request;
@@ -161,6 +162,13 @@ export default function Arisan({ group, members, userID, request }: {
                     <input name="note" aria-label="Catatan pembayaran" placeholder="Catatan pembayaran (opsional)" maxLength={500} className={control} />
                     <button className={button} disabled={busy}>Saya sudah bayar</button>
                   </form>
+                )}
+                {treasurer && round.status === "OPEN" && isOverdue(round.dueDate) &&
+                  (!item.claimStatus || item.claimStatus === "REJECTED") && (
+                  <a className="inline-flex min-h-11 items-center underline"
+                    href={paymentNudge(group.name, item.name, item.amount, round.dueDate)} target="_blank" rel="noreferrer">
+                    Ingatkan {item.name} lewat WhatsApp<span className="sr-only"> (tab baru)</span>
+                  </a>
                 )}
                 {treasurer && item.claimId && item.claimStatus === "PENDING" &&
                   <div className="flex flex-wrap gap-2">
