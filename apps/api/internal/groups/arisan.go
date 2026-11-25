@@ -187,7 +187,7 @@ func (h handler) draw(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	h.change(w, r, func(tx pgx.Tx, group, actor, role string) error {
+	h.changeGuarded(w, r, "draw:"+strings.ToLower(round), "", func(tx pgx.Tx, group, actor, role string) error {
 		if !treasurer(role) {
 			return errForbidden
 		}
@@ -296,7 +296,7 @@ func (h handler) payout(w http.ResponseWriter, r *http.Request) {
 		queryError(w, err)
 		return
 	}
-	h.change(w, r, func(tx pgx.Tx, group, actor, role string) error {
+	h.changeGuarded(w, r, "payout:"+strings.ToLower(round), key, func(tx pgx.Tx, group, actor, role string) error {
 		if !treasurer(role) {
 			return errForbidden
 		}

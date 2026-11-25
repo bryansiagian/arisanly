@@ -3,6 +3,7 @@ package groups
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
 	"github.com/jackc/pgx/v5"
@@ -13,11 +14,24 @@ var errForbidden = errors.New("forbidden")
 // Serialize membership and invite mutations for one group. Read the acting
 // membership after taking the lock so concurrent changes cannot grant stale rights.
 func (h handler) change(w http.ResponseWriter, r *http.Request, apply func(pgx.Tx, string, string, string) error) {
+	h.changeGuarded(w, r, "", "", apply)
+}
+
+func (h handler) changeGuarded(w http.ResponseWriter, r *http.Request, target, token string, apply func(pgx.Tx, string, string, string) error) {
 	id, ok := uuidParam(w, r, "id")
 	if !ok {
 		return
 	}
 	ctx := r.Context()
+	id = strings.ToLower(id)
+	if target != "" {
+		release, acquired := h.guard.Acquire(ctx, id, target)
+		if !acquired && token == "" {
+			fail(w, 409, "arisan_conflict")
+			return
+		}
+		defer release()
+	}
 	tx, err := h.db.Begin(ctx)
 	if err != nil {
 		queryError(w, err)
@@ -35,6 +49,10 @@ func (h handler) change(w http.ResponseWriter, r *http.Request, apply func(pgx.T
 		queryError(w, err)
 		return
 	}
+	if token != "" && treasurer(role) && h.guard.Seen(ctx, id, actor, target, token) {
+		w.WriteHeader(204)
+		return
+	}
 	err = apply(tx, id, actor, role)
 	if errors.Is(err, errForbidden) {
 		fail(w, 403, "forbidden")
@@ -47,6 +65,9 @@ func (h handler) change(w http.ResponseWriter, r *http.Request, apply func(pgx.T
 	if err = tx.Commit(ctx); err != nil {
 		queryError(w, err)
 		return
+	}
+	if token != "" {
+		h.guard.Remember(ctx, id, actor, target, token)
 	}
 	w.WriteHeader(204)
 }
