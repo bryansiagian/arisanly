@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authAPI } from "../../lib/auth-api";
 import Groups from "./groups";
 import Logout from "./logout";
+import Reminders from "./reminders";
 
 export default async function DashboardPage() {
   const access = (await cookies()).get("arisanly_access");
@@ -20,6 +21,7 @@ export default async function DashboardPage() {
       <h1 className="text-3xl font-semibold">Halo, {user.name}</h1>
       <p className="mt-2 text-stone-700">{user.email}</p>
       <Logout />
+      <Reminders />
       <Groups userID={user.id} />
     </main>
   );
