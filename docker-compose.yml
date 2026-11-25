@@ -66,6 +66,9 @@ services:
   worker:
     <<: *go-service
     command: ["worker"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
 
   web:
     build: ./apps/web
