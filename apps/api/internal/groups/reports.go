@@ -44,6 +44,7 @@ type reportRow struct {
 	Category string    `json:"category"`
 	Note     string    `json:"note"`
 	Member   string    `json:"member"`
+	Amount   string    `json:"amount"`
 	Delta    string    `json:"delta"`
 }
 
@@ -83,11 +84,11 @@ func (h handler) reportData(r *http.Request, group string, start, end time.Time)
 	}
 	rows, err := tx.Query(ctx, `
 		SELECT t.created_at,t.type,coalesce(c.category,''),coalesce(c.note,''),
-		       coalesce(m.name,''),coalesce(e.amount::text,'0')
+		       coalesce(m.name,''),coalesce(abs(e.amount)::text,abs(m.amount)::text,'0'),coalesce(e.amount::text,'0')
 		FROM arisanly.transactions t
 		LEFT JOIN arisanly.cash_records c ON c.transaction_id=t.id
 		LEFT JOIN LATERAL (
-		    SELECT u.name FROM arisanly.ledger_entries le JOIN arisanly.accounts a ON a.id=le.account_id
+		    SELECT u.name,le.amount FROM arisanly.ledger_entries le JOIN arisanly.accounts a ON a.id=le.account_id
 		    JOIN arisanly.users u ON u.id=a.member_user_id WHERE le.transaction_id=t.id
 		    ORDER BY a.id LIMIT 1
 		) m ON true
@@ -154,10 +155,10 @@ func (h handler) export(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w.Header().Set("Content-Disposition", `attachment; filename="arisanly-`+start.Format("2006-01")+`.csv"`)
 	writer := csv.NewWriter(w)
-	_ = writer.Write([]string{"Waktu WIB", "Jenis", "Kategori", "Catatan", "Anggota", "Perubahan dana (Rp)"})
+	_ = writer.Write([]string{"Waktu WIB", "Jenis", "Kategori", "Catatan", "Anggota", "Nominal (Rp)", "Perubahan dana (Rp)"})
 	for _, row := range rows {
 		_ = writer.Write([]string{row.At.In(start.Location()).Format(time.RFC3339), row.Type,
-			csvText(row.Category), csvText(row.Note), csvText(row.Member), row.Delta})
+			csvText(row.Category), csvText(row.Note), csvText(row.Member), row.Amount, row.Delta})
 	}
 	writer.Flush()
 }

@@ -10,7 +10,7 @@ type Report = {
     schedule: { amount: string; frequency: string; nextNumber: number; nextDue: string } | null;
     dues: { id: string; name: string; amount: string; dueDate: string; status: string }[];
   };
-  rows: { at: string; type: string; category: string; note: string; member: string; delta: string }[];
+  rows: { at: string; type: string; category: string; note: string; member: string; amount: string; delta: string }[];
 };
 type Request = (path: string, method?: string, payload?: object, key?: string) => Promise<unknown>;
 const control = "min-h-11 rounded-lg border border-stone-400 bg-white px-3";
@@ -131,7 +131,7 @@ export default function Reports({ group, request }: {
           {report.rows.length === 0 && <p>Belum ada transaksi pada bulan ini.</p>}
           <ul className="space-y-2">{report.rows.map((row, index) => (
             <li key={index} className="break-words border-t border-stone-200 py-2">
-              <p>{new Date(row.at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB · {labels[row.type] ?? row.type} · {rupiah(row.delta)}</p>
+              <p>{new Date(row.at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB · {labels[row.type] ?? row.type} · {rupiah(row.delta === "0" ? row.amount : row.delta)}</p>
               {(row.member || row.category || row.note) && <p>{[row.member, row.category, row.note].filter(Boolean).join(" · ")}</p>}
             </li>
           ))}</ul>
