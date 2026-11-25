@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/bryansiagian/arisanly/apps/api/internal/hardening"
 	"io"
 	"log/slog"
 	"mime"
 	"net/http"
 	"net/mail"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -38,6 +40,7 @@ type credentials struct {
 }
 
 type Handler struct {
+	guard     hardening.Guard
 	db        *pgxpool.Pool
 	secret    []byte
 	secure    bool
@@ -45,7 +48,7 @@ type Handler struct {
 	hashSlots chan struct{}
 }
 
-func New(db *pgxpool.Pool, signingSecret string, secureCookies bool) (*Handler, error) {
+func New(db *pgxpool.Pool, signingSecret string, secureCookies bool, guard hardening.Guard) (*Handler, error) {
 	if len(signingSecret) < 32 {
 		return nil, errors.New("JWT_ACCESS_SECRET must contain at least 32 bytes")
 	}
@@ -55,7 +58,7 @@ func New(db *pgxpool.Pool, signingSecret string, secureCookies bool) (*Handler, 
 	}
 	return &Handler{
 		db: db, secret: []byte(signingSecret), secure: secureCookies,
-		dummyHash: dummyHash, hashSlots: make(chan struct{}, 4),
+		guard: guard, dummyHash: dummyHash, hashSlots: make(chan struct{}, 4),
 	}, nil
 }
 
@@ -117,6 +120,11 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	if retry := h.guard.RetryAfter(r.Context(), "register", data.Email, 5, time.Minute); retry > 0 {
+		w.Header().Set("Retry-After", strconv.FormatInt(retry, 10))
+		fail(w, http.StatusTooManyRequests, "try_again")
+		return
+	}
 	if data.Name == "" || utf8.RuneCountInString(data.Name) > 100 {
 		fail(w, http.StatusBadRequest, "invalid_input")
 		return
@@ -147,6 +155,11 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	data, ok := readCredentials(w, r)
 	if !ok {
+		return
+	}
+	if retry := h.guard.RetryAfter(r.Context(), "login", data.Email, 10, time.Minute); retry > 0 {
+		w.Header().Set("Retry-After", strconv.FormatInt(retry, 10))
+		fail(w, http.StatusTooManyRequests, "try_again")
 		return
 	}
 	var account user

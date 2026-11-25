@@ -21,12 +21,12 @@ var errArisanState = errors.New("invalid arisan state")
 func (h handler) arisanRoutes(r chi.Router) {
 	r.Get("/rounds", h.rounds)
 	r.Get("/audit", h.auditLog)
-	r.Post("/start", h.startCycle)
-	r.Post("/rounds/{roundId}/draw", h.draw)
-	r.Post("/rounds/{roundId}/payout", h.payout)
-	r.Post("/rounds/{roundId}/close", h.closeRound)
+	r.Post("/start", h.limitOperations(h.startCycle))
+	r.Post("/rounds/{roundId}/draw", h.limitOperations(h.draw))
+	r.Post("/rounds/{roundId}/payout", h.limitOperations(h.payout))
+	r.Post("/rounds/{roundId}/close", h.limitOperations(h.closeRound))
 	r.Post("/obligations/{obligationId}/claims", h.claim)
-	r.Post("/claims/{claimId}/confirm", h.confirm)
+	r.Post("/claims/{claimId}/confirm", h.limitOperations(h.confirm))
 	r.Post("/claims/{claimId}/reject", h.reject)
 }
 
@@ -187,7 +187,7 @@ func (h handler) draw(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	h.change(w, r, func(tx pgx.Tx, group, actor, role string) error {
+	h.changeGuarded(w, r, "draw:"+strings.ToLower(round), "", func(tx pgx.Tx, group, actor, role string) error {
 		if !treasurer(role) {
 			return errForbidden
 		}
@@ -296,7 +296,7 @@ func (h handler) payout(w http.ResponseWriter, r *http.Request) {
 		queryError(w, err)
 		return
 	}
-	h.change(w, r, func(tx pgx.Tx, group, actor, role string) error {
+	h.changeGuarded(w, r, "payout:"+strings.ToLower(round), key, func(tx pgx.Tx, group, actor, role string) error {
 		if !treasurer(role) {
 			return errForbidden
 		}

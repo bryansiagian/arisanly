@@ -70,7 +70,11 @@ func (h handler) decideClaim(w http.ResponseWriter, r *http.Request, confirm boo
 			return
 		}
 	}
-	h.change(w, r, func(tx pgx.Tx, group, actor, role string) error {
+	target := ""
+	if confirm {
+		target = "confirm:" + strings.ToLower(claim)
+	}
+	h.changeGuarded(w, r, target, key, func(tx pgx.Tx, group, actor, role string) error {
 		if !treasurer(role) {
 			return errForbidden
 		}

@@ -3,11 +3,14 @@ package groups
 import (
 	"encoding/json"
 	"errors"
+	"github.com/bryansiagian/arisanly/apps/api/internal/hardening"
 	"io"
 	"log/slog"
 	"mime"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
@@ -31,10 +34,13 @@ type member struct {
 	Role string `json:"role"`
 }
 
-type handler struct{ db *pgxpool.Pool }
+type handler struct {
+	db    *pgxpool.Pool
+	guard hardening.Guard
+}
 
-func Routes(r chi.Router, db *pgxpool.Pool, authenticate func(http.Handler) http.Handler) {
-	h := handler{db}
+func Routes(r chi.Router, db *pgxpool.Pool, authenticate func(http.Handler) http.Handler, guard hardening.Guard) {
+	h := handler{db: db, guard: guard}
 	r.Use(authenticate)
 	r.Get("/", h.list)
 	r.Post("/", h.create)
@@ -187,4 +193,15 @@ func (h handler) rename(w http.ResponseWriter, r *http.Request) {
 		_, err := tx.Exec(r.Context(), "UPDATE arisanly.groups SET name = $2 WHERE id = $1", id, input.Name)
 		return err
 	})
+}
+
+func (h handler) limitOperations(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if retry := h.guard.RetryAfter(r.Context(), "operations", auth.UserID(r.Context()), 180, time.Minute); retry > 0 {
+			w.Header().Set("Retry-After", strconv.FormatInt(retry, 10))
+			fail(w, http.StatusTooManyRequests, "try_again")
+			return
+		}
+		next(w, r)
+	}
 }
