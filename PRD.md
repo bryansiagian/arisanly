@@ -75,7 +75,7 @@ Priority: **P0** = MVP must-have, **P1** = should-have, **P2** = nice-to-have.
 - Each round generates dues for every member, including the recipient (they also contribute, as is customary).
 - Member taps "Saya sudah bayar" (optional note); treasurer confirms or rejects. Confirming creates a ledger transaction.
 - **Payout:** when all dues of a round are confirmed, the treasurer records the payout to the recipient (the app records, it does not move money). Payout is blocked while the pot is incomplete.
-- Round status: `OPEN` -> `COLLECTED` -> `PAID_OUT` -> `CLOSED`. Cycle completes after the last round.
+- Round status: `OPEN` -> `COLLECTED` -> `PAID_OUT` -> `CLOSED`. The owner or treasurer closes a paid round to open the next round or complete the cycle. The cycle roster is fixed at start. New group members can participate starting with the next cycle.
 
 ### 5.4 Kas Mode (P1)
 - Recurring dues (weekly or monthly amount per member), plus additional income and expenses recorded by the treasurer with a category and note.
@@ -225,8 +225,8 @@ Key constraints: `UNIQUE(group_id, idempotency_key)` on `transactions`; `UNIQUE(
 | Auth | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `GET /auth/me` |
 | Groups | `GET/POST /groups`, `GET/PATCH /groups/:id`, `POST /groups/join` (invite code), `GET/POST /groups/:id/invites` |
 | Members | `GET /groups/:id/members`, `PATCH /groups/:id/members/:userId` (role), `DELETE` (leave/remove) |
-| Arisan | `POST /groups/:id/start`, `GET /groups/:id/rounds`, `POST /rounds/:id/draw`, `POST /rounds/:id/payout` |
-| Payments | `GET /groups/:id/obligations`, `POST /obligations/:id/claims`, `POST /claims/:id/confirm`, `POST /claims/:id/reject` |
+| Arisan | `POST /groups/:id/start`, `GET /groups/:id/rounds`, `POST /groups/:id/rounds/:roundId/draw`, `POST /groups/:id/rounds/:roundId/payout`, `POST /groups/:id/rounds/:roundId/close` |
+| Payments | Obligations are included in `GET /groups/:id/rounds`. Mutations use `POST /groups/:id/obligations/:obligationId/claims`, `POST /groups/:id/claims/:claimId/confirm`, and `POST /groups/:id/claims/:claimId/reject`. |
 | Kas (P1) | `POST /groups/:id/expenses`, `POST /groups/:id/income`, `GET /groups/:id/summary` |
 | Ledger and audit | `GET /groups/:id/ledger`, `GET /groups/:id/audit`, `POST /transactions/:id/reverse` |
 | Reports (P1) | `GET /groups/:id/export.csv`, `GET /public/g/:shareCode` |

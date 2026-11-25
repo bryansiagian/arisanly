@@ -183,6 +183,14 @@ The core has no new UI or write endpoints. Later milestones connect postings to 
 
 Run the integration suite with `go test -race -count=1 -v ./internal/ledger` from `apps/api`. Set `LEDGER_TEST_DATABASE_URL` to a disposable PostgreSQL database with the migrations applied. The tests add ledger history to that database.
 
+## Arisan cycle
+
+Open an Arisan group in `/dasbor`. The owner sets the contribution, first due date, interval, and either a fixed recipient order or a draw. A cycle requires at least two members. Members who join after a cycle starts can participate in the next cycle. Active participants stay on the roster until the cycle ends.
+
+The first round opens immediately. The owner or treasurer can reject a claim so the participant can submit it again. Once all contributions are confirmed and the recipient is assigned, the owner or treasurer records the payout. Closing the paid round immediately opens the next round or completes the cycle. Monthly due dates are calculated from the first due date and clamp to the last day of shorter months.
+
+The dashboard shows the latest cycle and the group's audit history, including draw candidates and the selected recipient. Payment confirmations and payouts require an `Idempotency-Key`. Run `node scripts/arisan-smoke.mjs` against the local stack to exercise a full two-round cycle.
+
 ## Project Structure
 
 ```
@@ -206,7 +214,7 @@ Run the integration suite with `go test -race -count=1 -v ./internal/ledger` fro
 - [x] **M1** Authentication
 - [x] **M2** Groups, members, invite link
 - [x] **M3** Ledger core with invariants and tests
-- [ ] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
+- [x] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
 - [ ] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
 - [ ] **M6** Kas mode, reports, CSV export, public share link
 - [ ] **M7** Reminders and UX polish
