@@ -143,6 +143,8 @@ func (h handler) remove(w http.ResponseWriter, r *http.Request) {
 		err := tx.QueryRow(r.Context(), `SELECT EXISTS (
 			SELECT 1 FROM arisanly.cycle_members m JOIN arisanly.cycles c ON c.id=m.cycle_id
 			WHERE c.group_id=$1 AND m.user_id=$2 AND c.closed_at IS NULL
+            UNION ALL SELECT 1 FROM arisanly.kas_dues
+            WHERE group_id=$1 AND member_user_id=$2 AND payment_transaction_id IS NULL
 		)`, id, target).Scan(&active)
 		if err != nil {
 			return err

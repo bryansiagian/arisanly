@@ -206,6 +206,14 @@ The Asynq worker schedules ledger reconciliation at the top of every UTC hour. I
 
 CI runs 100 concurrent retries of a single payment confirmation and exercises a full arisan cycle while Redis is stopped.
 
+## Kas and reports
+
+Open a Kas group on the dashboard and load the report. The owner or treasurer can record categorized income and expenses, configure weekly or monthly dues, issue the next period, and mark a due as paid after receiving the money. The schedule determines the next date. The treasurer opens each period explicitly. The amount and frequency are fixed after initial setup. Members with unpaid dues remain in the group until those dues are resolved.
+
+Members of Arisan or Kas groups can view monthly balances, transaction history, and a CSV export. Monthly reports use WIB. The dashboard shows all outstanding Kas dues so older debts remain actionable regardless of the selected month. The group owner can publish one summary link for seven days, rotate it, or revoke it. The public page displays the group type and balance only.
+
+Run `node scripts/kas-smoke.mjs` against the running stack to test postings, report access, and share revocation.
+
 ## Project Structure
 
 ```
@@ -231,7 +239,7 @@ CI runs 100 concurrent retries of a single payment confirmation and exercises a 
 - [x] **M3** Ledger core with invariants and tests
 - [x] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
 - [x] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
-- [ ] **M6** Kas mode, reports, CSV export, public share link
+- [x] **M6** Kas mode, reports, CSV export, public share link
 - [ ] **M7** Reminders and UX polish
 - [ ] **M8** Public deployment and pilot with a real group
 
