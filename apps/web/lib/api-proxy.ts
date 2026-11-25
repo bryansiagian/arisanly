@@ -32,7 +32,7 @@ async function boundedBody(request: Request) {
 
 export async function forward(request: Request, path: string, body?: string) {
   const headers = new Headers();
-  for (const name of ["cookie", "authorization", "content-type"]) {
+  for (const name of ["cookie", "authorization", "content-type", "idempotency-key"]) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }

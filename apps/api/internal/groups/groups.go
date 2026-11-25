@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
+	"github.com/bryansiagian/arisanly/apps/api/internal/ledger"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -46,6 +47,7 @@ func Routes(r chi.Router, db *pgxpool.Pool, authenticate func(http.Handler) http
 		r.Delete("/members/{userId}", h.remove)
 		r.Get("/invites", h.invites)
 		r.Post("/invites", h.invite)
+		h.arisanRoutes(r)
 	})
 }
 
@@ -62,6 +64,14 @@ func fail(w http.ResponseWriter, status int, code string) {
 func queryError(w http.ResponseWriter, err error) {
 	if errors.Is(err, pgx.ErrNoRows) {
 		fail(w, 404, "not_found")
+		return
+	}
+	switch {
+	case errors.Is(err, ledger.ErrInvalid):
+		fail(w, 400, "invalid_input")
+		return
+	case errors.Is(err, errArisanState), errors.Is(err, ledger.ErrConflict), errors.Is(err, ledger.ErrInsufficientBalance):
+		fail(w, 409, "arisan_conflict")
 		return
 	}
 	slog.Error("group operation failed", "error", err)

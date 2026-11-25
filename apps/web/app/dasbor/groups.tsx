@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import Arisan from "./arisan";
 
 type Group = { id: string; name: string; type: "ARISAN" | "KAS"; role: string };
 type Member = { id: string; name: string; role: string };
 const roles: Record<string, string> = { OWNER: "Pemilik", TREASURER: "Bendahara", MEMBER: "Anggota" };
 
-export async function groupRequest(path = "", method = "GET", payload?: object) {
+export async function groupRequest(path = "", method = "GET", payload?: object, key?: string) {
   const response = await fetch(`/api/v1/groups${path}`, {
     method,
-    headers: payload ? { "Content-Type": "application/json" } : undefined,
+    headers: {
+      ...(payload ? { "Content-Type": "application/json" } : {}),
+      ...(key ? { "Idempotency-Key": key } : {}),
+    },
     body: payload ? JSON.stringify(payload) : undefined,
     cache: "no-store",
   });
@@ -19,6 +23,7 @@ export async function groupRequest(path = "", method = "GET", payload?: object) 
     throw new Error("Sesi perlu diperbarui. Silakan ulangi tindakanmu.");
   }
   if (!response.ok) {
+    if (response.status === 409) throw new Error("Tindakan tidak tersedia pada status saat ini. Muat ulang jika data berubah.");
     if (response.status === 410) throw new Error("Undangan kedaluwarsa atau kuotanya sudah habis.");
     if (response.status === 404) throw new Error("Kelompok atau undangan tidak ditemukan.");
     if (response.status === 403) throw new Error("Kamu tidak memiliki izin untuk melakukan tindakan ini.");
@@ -136,6 +141,9 @@ export default function Groups({ userID }: { userID: string }) {
                 <a className="inline-flex min-h-11 items-center underline" href={`https://wa.me/?text=${encodeURIComponent(invite.link)}`} target="_blank" rel="noreferrer">Bagikan lewat WhatsApp</a>
               </div>}
             </>
+          )}
+          {selected.type === "ARISAN" && (
+            <Arisan key={selected.id} group={selected} members={members} userID={userID} request={groupRequest} />
           )}
           <h4 className="font-medium">Anggota</h4>
           <ul className="space-y-2">
