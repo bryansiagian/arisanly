@@ -59,6 +59,7 @@ assert.equal(summary.balance, "18000");
 assert.equal(summary.income, "20000");
 assert.equal(summary.expenses, "2000");
 assert.equal(rows.filter(({ type }) => type === "INCOME").length, 1);
+assert.ok(rows.some(({ type, amount, delta }) => type === "CHARGE" && amount === "5000" && delta === "0"));
 const historic = await (await request(root + "/summary?month=2000-01", 200, { cookie: member })).json();
 assert.equal(historic.rows.length, 0);
 assert.ok(historic.summary.dues.some(({ status }) => status === "PAID"));
@@ -71,7 +72,7 @@ const issue = () => request(root + "/share", 201, { cookie: owner, body: {} }).t
 const share = await issue();
 const report = "/ringkasan/" + share.code;
 const publicPage = await (await request(report, 200)).text();
-assert.match(publicPage, /Ringkasan kas/);
+assert.match(publicPage.replaceAll("<!-- -->", ""), /Ringkasan kas/);
 assert.doesNotMatch(publicPage, /Nama kelompok privat|Anggota privat|Catatan privat/);
 const rotated = await issue();
 await request(report, 404);

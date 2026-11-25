@@ -78,7 +78,7 @@ Priority: **P0** = MVP must-have, **P1** = should-have, **P2** = nice-to-have.
 - Round status: `OPEN` -> `COLLECTED` -> `PAID_OUT` -> `CLOSED`. The owner or treasurer closes a paid round to open the next round or complete the cycle. The cycle roster is fixed at start. New group members can participate starting with the next cycle.
 
 ### 5.4 Kas Mode (P1)
-- Recurring dues (weekly or monthly amount per member), plus additional income and expenses recorded by the treasurer with a category and note.
+- Recurring dues (weekly or monthly amount per member), plus additional income and expenses recorded by the treasurer with a category and note. The treasurer explicitly opens each consecutive billing period from the saved schedule.
 - Running balance, per-member status (paid, late, owed), and a monthly recap.
 
 ### 5.5 Reminders and Notifications (P1)
@@ -227,9 +227,9 @@ Key constraints: `UNIQUE(group_id, idempotency_key)` on `transactions`; `UNIQUE(
 | Members | `GET /groups/:id/members`, `PATCH /groups/:id/members/:userId` (role), `DELETE` (leave/remove) |
 | Arisan | `POST /groups/:id/start`, `GET /groups/:id/rounds`, `POST /groups/:id/rounds/:roundId/draw`, `POST /groups/:id/rounds/:roundId/payout`, `POST /groups/:id/rounds/:roundId/close` |
 | Payments | Obligations are included in `GET /groups/:id/rounds`. Mutations use `POST /groups/:id/obligations/:obligationId/claims`, `POST /groups/:id/claims/:claimId/confirm`, and `POST /groups/:id/claims/:claimId/reject`. |
-| Kas (P1) | `POST /groups/:id/expenses`, `POST /groups/:id/income`, `GET /groups/:id/summary` |
+| Kas (P1) | `POST /groups/:id/expenses`, `POST /groups/:id/income`, `GET /groups/:id/summary?month=YYYY-MM`, `POST /groups/:id/kas/schedule`, `POST /groups/:id/kas/periods`, `POST /groups/:id/kas/dues/:dueId/pay` |
 | Ledger and audit | `GET /groups/:id/ledger`, `GET /groups/:id/audit`, `POST /transactions/:id/reverse` |
-| Reports (P1) | `GET /groups/:id/export.csv`, `GET /public/g/:shareCode` |
+| Reports (P1) | `GET /groups/:id/export.csv`, `POST/DELETE /groups/:id/share`, `GET /public/g/:shareCode` |
 | System | `GET /healthz`, `GET /readyz` |
 
 Money-affecting `POST` endpoints (`confirm`, `payout`, `expenses`, `income`, `reverse`) require the `Idempotency-Key` header.
