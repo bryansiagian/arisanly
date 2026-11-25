@@ -92,7 +92,7 @@ func (h handler) memberRole(w http.ResponseWriter, r *http.Request) {
 		fail(w, 400, "invalid_input")
 		return
 	}
-	h.change(w, r, func(tx pgx.Tx, id, _ string, role string) error {
+	h.change(w, r, func(tx pgx.Tx, id, actor string, role string) error {
 		if role != "OWNER" {
 			return errForbidden
 		}
@@ -102,7 +102,10 @@ func (h handler) memberRole(w http.ResponseWriter, r *http.Request) {
 		if err == nil && tag.RowsAffected() == 0 {
 			return pgx.ErrNoRows
 		}
-		return err
+		if err != nil {
+			return err
+		}
+		return audit(r, tx, id, actor, "MEMBER_ROLE_CHANGED", map[string]any{"userId": target, "role": input.Role})
 	})
 }
 
@@ -114,6 +117,17 @@ func (h handler) remove(w http.ResponseWriter, r *http.Request) {
 	h.change(w, r, func(tx pgx.Tx, id, actor, role string) error {
 		if role != "OWNER" && actor != target {
 			return errForbidden
+		}
+		var active bool
+		err := tx.QueryRow(r.Context(), `SELECT EXISTS (
+			SELECT 1 FROM arisanly.cycle_members m JOIN arisanly.cycles c ON c.id=m.cycle_id
+			WHERE c.group_id=$1 AND m.user_id=$2 AND c.closed_at IS NULL
+		)`, id, target).Scan(&active)
+		if err != nil {
+			return err
+		}
+		if active {
+			return errArisanState
 		}
 		tag, err := tx.Exec(r.Context(), `
 			DELETE FROM arisanly.group_members
