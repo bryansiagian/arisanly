@@ -16,6 +16,8 @@ func (h handler) rounds(w http.ResponseWriter, r *http.Request) {
 	err := h.db.QueryRow(r.Context(), `
 		WITH latest AS (SELECT * FROM arisanly.cycles WHERE group_id=$1 ORDER BY created_at DESC,id DESC LIMIT 1)
 		SELECT jsonb_build_object(
+			'fundBalance', coalesce((SELECT balance::text FROM arisanly.accounts
+				WHERE group_id=$1 AND kind='FUND'),'0'),
 			'cycle', (SELECT jsonb_build_object('id',id,'closed',closed_at IS NOT NULL,
 				'amount',amount::text,'method',order_method,'frequency',frequency) FROM latest),
 			'rounds', coalesce((

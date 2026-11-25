@@ -90,6 +90,7 @@ async function playRound(expectedDate, rejectFirst) {
     await expect(409, request(confirmPath, owner, {}, randomUUID()), "duplicate payment with different key");
   }
   assert.equal((await rounds()).rounds[0].status, "COLLECTED");
+  assert.equal((await rounds()).fundBalance, "25000");
   const key = randomUUID();
   await expect(204, request(roundPath + "/payout", owner, {}, key), "payout");
   await expect(204, request(roundPath + "/payout", owner, {}, key), "idempotent payout");
@@ -101,6 +102,7 @@ await playRound("2027-01-31", true);
 await playRound("2027-02-28", false);
 const completed = await rounds();
 assert.equal(completed.cycle.closed, true);
+assert.equal(completed.fundBalance, "0");
 assert.equal(new Set(completed.rounds.map(({ recipientId }) => recipientId)).size, 2);
 const audit = await (await expect(200, request(group + "/audit", payer), "member can read audit")).json();
 assert.deepEqual(audit.filter(({ action }) => action === "ROUND_DRAWN").map(({ details }) => details.candidates.length), [1, 2]);

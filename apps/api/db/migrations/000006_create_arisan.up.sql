@@ -25,6 +25,8 @@ CREATE TABLE arisanly.rounds (
     recipient_user_id uuid,
     status text NOT NULL CHECK (status IN ('OPEN','COLLECTED','PAID_OUT','CLOSED')),
     payout_transaction_id uuid UNIQUE REFERENCES arisanly.transactions(id),
+    CHECK ((status IN ('PAID_OUT','CLOSED')) = (payout_transaction_id IS NOT NULL)),
+    CHECK (payout_transaction_id IS NULL OR recipient_user_id IS NOT NULL),
     UNIQUE (cycle_id,number),
     UNIQUE (cycle_id,recipient_user_id),
     FOREIGN KEY (cycle_id,recipient_user_id) REFERENCES arisanly.cycle_members(cycle_id,user_id)
@@ -44,7 +46,8 @@ CREATE TABLE arisanly.payment_claims (
     note text NOT NULL CHECK (char_length(note) <= 500),
     status text NOT NULL CHECK (status IN ('PENDING','CONFIRMED','REJECTED')),
     payment_transaction_id uuid UNIQUE REFERENCES arisanly.transactions(id),
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    CHECK ((status = 'CONFIRMED') = (payment_transaction_id IS NOT NULL))
 );
 CREATE UNIQUE INDEX one_live_claim ON arisanly.payment_claims(obligation_id)
 WHERE status IN ('PENDING','CONFIRMED');

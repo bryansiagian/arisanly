@@ -11,7 +11,7 @@ type Round = {
   id: string; number: number; dueDate: string; status: string;
   recipientId: string | null; recipientName: string | null; obligations: Obligation[];
 };
-type History = { cycle: { closed: boolean; method: string } | null; rounds: Round[] };
+type History = { fundBalance: string; cycle: { closed: boolean; method: string } | null; rounds: Round[] };
 type Audit = {
   id: string; action: string; actor: string; createdAt: string;
   details: { roundId?: string; candidates?: string[]; recipientId?: string };
@@ -100,6 +100,7 @@ export default function Arisan({ group, members, userID, request }: {
       <h4 className="text-lg font-semibold">Putaran arisan</h4>
       {error && <p role="alert" className="text-red-800">{error}</p>}
       {!history && !error && <p role="status">Memuat putaran…</p>}
+      {history?.cycle && <p>Saldo dana {currency.format(BigInt(history.fundBalance))}</p>}
       {history && !history.cycle && <p>Belum ada siklus arisan.</p>}
       {history?.cycle?.closed && <p>Siklus terakhir sudah selesai.</p>}
       {history && (!history.cycle || history.cycle.closed) && owner && (
