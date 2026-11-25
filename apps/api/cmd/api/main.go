@@ -11,8 +11,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bryansiagian/arisanly/apps/api/internal/hardening"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/auth"
 	"github.com/bryansiagian/arisanly/apps/api/internal/groups"
@@ -57,7 +59,21 @@ func serve(port string) error {
 	if err := db.Ping(startup); err != nil {
 		return errors.New("database connection failed")
 	}
-	authRoutes, err := auth.New(db, os.Getenv("JWT_ACCESS_SECRET"), secureCookies)
+	var cache *redis.Client
+	if redisURL := os.Getenv("REDIS_URL"); redisURL != "" {
+		options, err := redis.ParseURL(redisURL)
+		if err != nil {
+			return errors.New("invalid REDIS_URL")
+		}
+		options.DialTimeout = 200 * time.Millisecond
+		options.ReadTimeout = 200 * time.Millisecond
+		options.WriteTimeout = 200 * time.Millisecond
+		options.MaxRetries = -1
+		cache = redis.NewClient(options)
+		defer cache.Close()
+	}
+	guard := hardening.New(cache)
+	authRoutes, err := auth.New(db, os.Getenv("JWT_ACCESS_SECRET"), secureCookies, guard)
 	if err != nil {
 		return err
 	}
@@ -65,7 +81,7 @@ func serve(port string) error {
 	router := chi.NewRouter()
 	router.Get("/healthz", health)
 	router.Route("/api/v1/auth", authRoutes.Routes)
-	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser) })
+	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser, guard) })
 	server := &http.Server{
 		Addr:              ":" + port,
 		Handler:           http.NewCrossOriginProtection().Handler(router),

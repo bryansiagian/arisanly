@@ -53,6 +53,7 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-arisanly-local-dev-key-change-before-production}
+      REDIS_URL: redis://redis:6379/0
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
     ports:
       - "127.0.0.1:${API_PORT:-8080}:8080"

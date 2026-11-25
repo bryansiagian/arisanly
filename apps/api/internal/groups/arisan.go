@@ -21,12 +21,12 @@ var errArisanState = errors.New("invalid arisan state")
 func (h handler) arisanRoutes(r chi.Router) {
 	r.Get("/rounds", h.rounds)
 	r.Get("/audit", h.auditLog)
-	r.Post("/start", h.startCycle)
-	r.Post("/rounds/{roundId}/draw", h.draw)
-	r.Post("/rounds/{roundId}/payout", h.payout)
-	r.Post("/rounds/{roundId}/close", h.closeRound)
+	r.Post("/start", h.limitOperations(h.startCycle))
+	r.Post("/rounds/{roundId}/draw", h.limitOperations(h.draw))
+	r.Post("/rounds/{roundId}/payout", h.limitOperations(h.payout))
+	r.Post("/rounds/{roundId}/close", h.limitOperations(h.closeRound))
 	r.Post("/obligations/{obligationId}/claims", h.claim)
-	r.Post("/claims/{claimId}/confirm", h.confirm)
+	r.Post("/claims/{claimId}/confirm", h.limitOperations(h.confirm))
 	r.Post("/claims/{claimId}/reject", h.reject)
 }
 
