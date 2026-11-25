@@ -24,6 +24,7 @@ export async function groupRequest(path = "", method = "GET", payload?: object, 
     throw new Error("Sesi perlu diperbarui. Silakan ulangi tindakanmu.");
   }
   if (!response.ok) {
+    if (response.status === 429) throw new Error("Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.");
     if (response.status === 409) throw new Error("Tindakan tidak tersedia pada status saat ini. Muat ulang jika data berubah.");
     if (response.status === 410) throw new Error("Undangan kedaluwarsa atau kuotanya sudah habis.");
     if (response.status === 404) throw new Error("Kelompok atau undangan tidak ditemukan.");
