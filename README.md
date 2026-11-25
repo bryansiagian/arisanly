@@ -214,6 +214,12 @@ Members of Arisan or Kas groups can view monthly balances, transaction history, 
 
 Run `node scripts/kas-smoke.mjs` against the running stack to test postings, report access, and share revocation.
 
+## Payment reminders
+
+The worker checks unpaid Arisan and Kas dues once an hour, at minute 15. It uses the WIB calendar and records one reminder per due for each stage: within three days before the due date, on the due date, and after it. It does not backfill earlier stages after downtime. A pending or confirmed Arisan claim suppresses new reminders. A rejected claim becomes eligible again.
+
+Each member can open the reminder inbox on their dashboard, refresh it, and mark messages as read. The inbox displays the most recent 50 reminders from groups the user still belongs to. Owners and treasurers can open WhatsApp with a prepared message for an overdue member. The sender selects the contact and sends the message in WhatsApp.
+
 ## Project Structure
 
 ```
@@ -240,7 +246,7 @@ Run `node scripts/kas-smoke.mjs` against the running stack to test postings, rep
 - [x] **M4** Arisan flow: rounds, draw, claims, confirmation, payout
 - [x] **M5** Hardening: idempotency, rate limiting, locks, reconciliation, concurrency tests
 - [x] **M6** Kas mode, reports, CSV export, public share link
-- [ ] **M7** Reminders and UX polish
+- [x] **M7** Reminders and UX polish
 - [ ] **M8** Public deployment and pilot with a real group
 
 ## Screenshots
