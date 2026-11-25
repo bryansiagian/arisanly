@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/hardening"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
@@ -79,12 +81,24 @@ func serve(port string) error {
 	}
 
 	router := chi.NewRouter()
+	router.Use(requestLog, http.NewCrossOriginProtection().Handler)
+	router.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), time.Second)
+		defer cancel()
+		if err := db.Ping(ctx); err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = w.Write([]byte("{\"status\":\"unavailable\"}\n"))
+			return
+		}
+		health(w, r)
+	})
 	router.Get("/healthz", health)
 	router.Route("/api/v1/auth", authRoutes.Routes)
 	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser, guard) })
 	server := &http.Server{
 		Addr:              ":" + port,
-		Handler:           http.NewCrossOriginProtection().Handler(router),
+		Handler:           router,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
@@ -113,4 +127,17 @@ func serve(port string) error {
 func health(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte("{\"status\":\"ok\"}\n"))
+}
+
+func requestLog(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		id := rand.Text()
+		w.Header().Set("X-Request-ID", id)
+		writer := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		next.ServeHTTP(writer, r)
+		slog.Info("request completed", "request_id", id, "method", r.Method,
+			"route", chi.RouteContext(r.Context()).RoutePattern(),
+			"status", writer.Status(), "duration_ms", time.Since(start).Milliseconds())
+	})
 }
