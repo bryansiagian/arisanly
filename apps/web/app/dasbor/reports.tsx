@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { paymentNudge } from "../../lib/payment-nudge";
 
 type Report = {
   month: string;
@@ -23,7 +24,7 @@ const labels: Record<string, string> = {
 };
 
 export default function Reports({ group, request }: {
-  group: { id: string; type: "ARISAN" | "KAS"; role: string };
+  group: { id: string; name: string; type: "ARISAN" | "KAS"; role: string };
   request: Request;
 }) {
   const root = `/${group.id}`;
@@ -120,6 +121,12 @@ export default function Reports({ group, request }: {
           <ul className="space-y-2">
             {report.summary.dues.map((due) => <li key={due.id} className="border-t border-stone-200 pt-2">
               <p>{due.name} · {due.dueDate} · {rupiah(due.amount)} · {labels[due.status]}</p>
+              {treasurer && due.status === "LATE" && (
+                <a className="mr-3 inline-flex min-h-11 items-center underline"
+                  href={paymentNudge(group.name, due.name, due.amount, due.dueDate)} target="_blank" rel="noreferrer">
+                  Ingatkan {due.name} lewat WhatsApp<span className="sr-only"> (tab baru)</span>
+                </a>
+              )}
               {treasurer && due.status !== "PAID" && <button disabled={busy} className={button} onClick={() => {
                 if (window.confirm(`Pembayaran ${due.name} sudah diterima?`)) write(`/kas/dues/${due.id}/pay`, {}, true);
               }}>Catat pembayaran</button>}

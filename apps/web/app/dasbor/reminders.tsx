@@ -53,7 +53,7 @@ export default function Reminders() {
   const unread = items?.filter((item) => !item.read).length;
   return (
     <details className="my-6 rounded-lg border border-stone-300 px-4">
-      <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-semibold">
+      <summary className="min-h-11 cursor-pointer py-2 font-semibold">
         Pengingat iuran {unread ? <span className="font-normal">({unread} belum dibaca)</span> : null}
       </summary>
       <div className="space-y-2 pb-3">
