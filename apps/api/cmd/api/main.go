@@ -94,6 +94,7 @@ func serve(port string) error {
 		health(w, r)
 	})
 	router.Get("/healthz", health)
+	router.Get("/api/v1/public/g/{code}", groups.PublicReport(db))
 	router.Route("/api/v1/auth", authRoutes.Routes)
 	router.Route("/api/v1/groups", func(r chi.Router) { groups.Routes(r, db, authRoutes.RequireUser, guard) })
 	server := &http.Server{
