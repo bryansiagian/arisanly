@@ -2,8 +2,8 @@ import { error, forward, forwardJSON, validateMutation } from "../../../../../li
 
 const groupID = "[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 const routes: Record<string, RegExp> = {
-  GET: new RegExp(`^(?:|${groupID}(?:/(?:members|invites))?)$`, "i"),
-  POST: new RegExp(`^(?:|join|${groupID}/invites)$`, "i"),
+  GET: new RegExp(`^(?:|${groupID}(?:/(?:members|invites|rounds|audit))?)$`, "i"),
+  POST: new RegExp(`^(?:|join|${groupID}/(?:invites|start|rounds/${groupID}/(?:draw|payout|close)|obligations/${groupID}/claims|claims/${groupID}/(?:confirm|reject)))$`, "i"),
   PATCH: new RegExp(`^${groupID}(?:/members/${groupID})?$`, "i"),
   DELETE: new RegExp(`^${groupID}/members/${groupID}$`, "i"),
 };
