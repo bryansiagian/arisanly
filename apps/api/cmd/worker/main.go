@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bryansiagian/arisanly/apps/api/internal/ledger"
+	"github.com/bryansiagian/arisanly/apps/api/internal/reminders"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -50,6 +51,12 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("register ledger reconciliation: %w", err)
 	}
 
+	_, err = scheduler.Register("15 * * * *", asynq.NewTask(reminders.Task, nil),
+		asynq.Unique(30*time.Minute), asynq.Timeout(2*time.Minute), asynq.MaxRetry(3))
+	if err != nil {
+		return fmt.Errorf("register payment reminders: %w", err)
+	}
+
 	server := asynq.NewServer(redisOptions, asynq.Config{Concurrency: 1})
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(reconcileTask, func(ctx context.Context, _ *asynq.Task) error {
@@ -64,6 +71,15 @@ func run(ctx context.Context) error {
 		slog.Info("ledger reconciliation finished", "mismatches", len(diffs))
 		return nil
 	})
+	mux.HandleFunc(reminders.Task, func(ctx context.Context, _ *asynq.Task) error {
+		created, err := reminders.Generate(ctx, db, time.Now())
+		if err != nil {
+			return fmt.Errorf("generate payment reminders: %w", err)
+		}
+		slog.Info("payment reminders generated", "created", created)
+		return nil
+	})
+
 	if err := server.Start(mux); err != nil {
 		return fmt.Errorf("start task runner: %w", err)
 	}
@@ -73,6 +89,7 @@ func run(ctx context.Context) error {
 	}
 	defer scheduler.Shutdown()
 	slog.Info("ledger reconciliation scheduled", "interval", "hourly", "timezone", "UTC")
+	slog.Info("payment reminders scheduled", "minute", 15, "calendar", "WIB")
 	<-ctx.Done()
 	return nil
 }
