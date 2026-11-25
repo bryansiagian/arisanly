@@ -54,6 +54,7 @@ func Routes(r chi.Router, db *pgxpool.Pool, authenticate func(http.Handler) http
 		r.Get("/invites", h.invites)
 		r.Post("/invites", h.invite)
 		h.arisanRoutes(r)
+		h.kasRoutes(r)
 	})
 }
 
