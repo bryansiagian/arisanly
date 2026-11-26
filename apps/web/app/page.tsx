@@ -16,7 +16,7 @@ export default function Home() {
           <Brand />
           <nav aria-label="Navigasi utama" className="flex items-center gap-5">
             <a href="#cara-kerja" className="hidden min-h-11 items-center text-sm font-semibold sm:inline-flex">Cara kerja</a>
-            <Link href="/masuk" className="action-gold">Masuk <span aria-hidden="true" className="ml-2">↗</span></Link>
+            <Link href="/masuk" className="action-gold">Masuk</Link>
           </nav>
         </header>
         <main id="konten" className="hero-intro grid flex-1 items-center gap-9 py-9 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12">
@@ -29,7 +29,7 @@ export default function Home() {
               Kelola iuran, putaran arisan, dan kas kelompok dalam satu dasbor yang bisa dilihat semua anggota.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link href="/daftar" className="action-gold">Buat akun <span aria-hidden="true">↗</span></Link>
+              <Link href="/daftar" className="action-gold">Buat akun</Link>
               <a href="#cara-kerja" className="action">Lihat cara kerja</a>
             </div>
           </div>
