@@ -1,5 +1,5 @@
 import AuthForm from "../auth-form";
-import LoginShell from "./login-shell";
+import AccountShell from "../account-shell";
 import SessionRecovery from "./session-recovery";
 
 export default async function LoginPage({ searchParams }: {
@@ -7,8 +7,8 @@ export default async function LoginPage({ searchParams }: {
 }) {
   const params = await searchParams;
   return (
-    <LoginShell>
+    <AccountShell>
       {params.sesi === "1" ? <SessionRecovery /> : <AuthForm registered={params.terdaftar === "1"} />}
-    </LoginShell>
+    </AccountShell>
   );
 }

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 680" fill="none">
+  <defs>
+    <radialGradient id="room" cx=".58" cy=".57" r=".72">
+      <stop stop-color="#70522a"/><stop offset=".54" stop-color="#2c4235"/><stop offset="1" stop-color="#11241e"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="246" y1="210" x2="459" y2="493" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff1be"/><stop offset=".55" stop-color="#f59e0b"/><stop offset="1" stop-color="#a65d1d"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f7eac3" stop-opacity=".32"/><stop offset="1" stop-color="#122821" stop-opacity=".95"/>
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M0 34V0h34" stroke="#efddb2" stroke-opacity=".13"/>
+    </pattern>
+    <filter id="shadow" x="-60%" y="-60%" width="220%" height="245%">
+      <feDropShadow dx="0" dy="17" stdDeviation="14" flood-color="#0b1712" flood-opacity=".67"/>
+    </filter>
+    <g id="participant">
+      <rect x="-39" y="-34" width="78" height="68" rx="17" fill="url(#tile)" stroke="#e9cd8f" stroke-opacity=".72"/>
+      <circle cy="-8" r="7" stroke="#ffebbc" stroke-width="2"/>
+      <path d="M-14 13c2-8 8-11 14-11s12 3 14 11" stroke="#ffebbc" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </defs>
+  <path d="M0 0h680v680H0z" fill="url(#room)"/>
+  <path d="M0 0h680v680H0z" fill="url(#grid)"/>
+  <g stroke="#e9cd8f" opacity=".33"><circle cx="340" cy="355" r="243"/><circle cx="340" cy="355" r="223" stroke-dasharray="2 7"/><path d="M340 83v545M70 355h540"/></g>
+  <g transform="rotate(-22 340 355)" stroke="#fdbc51">
+    <ellipse cx="340" cy="355" rx="237" ry="134" stroke-opacity=".69" stroke-width="1.5"/>
+    <ellipse cx="340" cy="355" rx="202" ry="101" stroke-opacity=".44" stroke-dasharray="3 8"/>
+    <circle cx="103" cy="355" r="5" fill="#f59e0b"/>
+    <circle cx="508" cy="450" r="4" fill="#f59e0b"/>
+  </g>
+  <g stroke="#f0c978" stroke-opacity=".55"><path d="M340 355 215 251m125 104 137-100M340 355 203 470m137-115 156 104"/></g>
+  <g filter="url(#shadow)">
+    <use href="#participant" transform="translate(211 248) rotate(-13)"/>
+    <use href="#participant" transform="translate(480 252) rotate(11)"/>
+    <use href="#participant" transform="translate(198 474) rotate(-11)"/>
+    <use href="#participant" transform="translate(501 463) rotate(12)"/>
+    <rect x="273" y="295" width="144" height="118" rx="28" fill="#8d521a" stroke="#f1c978"/>
+    <rect x="268" y="287" width="144" height="118" rx="28" fill="url(#gold)" stroke="#ffe9af" stroke-width="2"/>
+    <rect x="277" y="296" width="126" height="100" rx="21" stroke="#81470e" stroke-opacity=".53"/>
+    <path d="M306 335h68v33h-68zM306 335l34-19 34 19m-54 10v14m20-14v14m16-14v14m-56 12h80" stroke="#57330e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

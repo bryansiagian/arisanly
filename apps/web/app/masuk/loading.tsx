@@ -1,10 +1,10 @@
 import { SkeletonRows } from "../skeleton";
-import LoginShell from "./login-shell";
+import AccountShell from "../account-shell";
 
 export default function Loading() {
   return (
-    <LoginShell>
+    <AccountShell>
       <SkeletonRows label="Memuat halaman masuk…" rows={4} />
-    </LoginShell>
+    </AccountShell>
   );
 }
