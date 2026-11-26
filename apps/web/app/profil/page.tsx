@@ -18,7 +18,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="dashboard mx-auto max-w-5xl px-4 sm:px-8">
-      <header className="dashboard-nav flex items-center justify-between gap-3 py-3">
+      <header className="dashboard-nav dashboard-nav-blended flex items-center justify-between gap-3 py-3">
         <Brand />
         <AccountMenu name={user.name} email={user.email} />
       </header>

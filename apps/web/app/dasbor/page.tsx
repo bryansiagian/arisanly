@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   return (
     <div className="dashboard mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12">
       <a href="#konten" className="sr-only focus:not-sr-only focus:inline-flex focus:py-3">Lewati ke konten</a>
-      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
+      <header className="dashboard-nav dashboard-nav-blended flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
         <Brand />
         <AccountMenu name={user.name} email={user.email} />
       </header>
