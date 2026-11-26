@@ -26,7 +26,7 @@ export default function Logout() {
         className="action">
         {pending ? "Memproses…" : "Keluar"}
       </button>
-      {error && <p role="alert" className="mt-2 text-red-800">Gagal keluar. Coba lagi.</p>}
+      {error && <p role="alert" className="notice-error mt-2">Gagal keluar. Coba lagi.</p>}
     </div>
   );
 }

@@ -6,6 +6,11 @@
   --color-ink: #232b28;
   --color-muted: #565e59;
   --color-canvas: #faf7f1;
+  --color-attention: #854d0e;
+  --color-attention-soft: #fff2d7;
+  --color-danger: #9f3a38;
+  --color-danger-soft: #fff0ed;
+  --color-success-soft: #e8f4ee;
   --color-line: #e4dcd0;
 }
 
@@ -28,5 +33,11 @@
   .action-primary {
     @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;
   }
-  .notice-error { @apply rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-900; }
+  .notice-error { @apply rounded-lg border border-danger/25 bg-danger-soft px-3 py-2 text-danger; }
+  .status-label {
+    @apply inline-block max-w-full rounded-md bg-canvas px-2 py-0.5 text-sm font-semibold text-muted;
+  }
+  .status-label[data-tone="attention"] { @apply bg-attention-soft text-attention; }
+  .status-label[data-tone="danger"] { @apply bg-danger-soft text-danger; }
+  .status-label[data-tone="success"] { @apply bg-success-soft text-brand; }
 }

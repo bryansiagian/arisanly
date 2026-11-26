@@ -59,7 +59,7 @@ export default function AuthForm({ register = false, registered = false }: {
       <Brand />
       <div className="panel space-y-5">
         <h1 className="text-3xl font-bold tracking-tight">{heading}</h1>
-        {registered && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-brand-deep">Akun sudah dibuat. Silakan masuk.</p>}
+        {registered && <p role="status" className="rounded-lg bg-success-soft p-3 text-brand">Akun sudah dibuat. Silakan masuk.</p>}
         <form onSubmit={submit} className="grid gap-4">
           {register && (
             <label className="grid gap-1">

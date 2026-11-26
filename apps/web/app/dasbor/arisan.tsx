@@ -1,5 +1,7 @@
 "use client";
 
+import StatusLabel from "../status-label";
+
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { isOverdue, paymentNudge } from "../../lib/payment-nudge";
@@ -150,7 +152,10 @@ export default function Arisan({ group, members, userID, request }: {
           <ul className="space-y-2">
             {round.obligations.map((item) => (
               <li key={item.id} className="space-y-1 border-t border-stone-200 pt-2">
-                <p>{item.name} · {currency.format(BigInt(item.amount))} · {item.claimStatus ? status[item.claimStatus] : "Belum ada klaim"}</p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p className="break-words">{item.name} · {currency.format(BigInt(item.amount))}</p>
+                  <StatusLabel status={item.claimStatus}>{item.claimStatus ? status[item.claimStatus] : "Belum ada klaim"}</StatusLabel>
+                </div>
                 {item.note && <p className="break-words text-sm text-stone-700">{item.note}</p>}
                 {round.status === "OPEN" && item.memberId === userID &&
                   (!item.claimStatus || item.claimStatus === "REJECTED") && (

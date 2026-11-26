@@ -1,5 +1,7 @@
 "use client";
 
+import StatusLabel from "../status-label";
+
 import { useEffect, useState } from "react";
 
 type Reminder = {
@@ -64,7 +66,10 @@ export default function Reminders() {
         <ul aria-live="polite" className="space-y-2">
           {items?.map((item) => (
             <li key={item.id} className="break-words border-t border-stone-200 pt-2">
-              <p className={item.read ? "" : "font-semibold"}>{item.groupName} · {labels[item.stage]}</p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className={item.read ? "" : "font-semibold"}>{item.groupName}</p>
+                <StatusLabel status={item.stage}>{labels[item.stage]}</StatusLabel>
+              </div>
               <p>{currency.format(BigInt(item.amount))} · {item.dueDate}</p>
               {item.read ? <p className="text-sm text-stone-600">Sudah dibaca</p> :
                 <button type="button" disabled={pending !== ""} onClick={() => void markRead(item.id)}

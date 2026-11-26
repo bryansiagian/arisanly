@@ -1,5 +1,7 @@
 "use client";
 
+import StatusLabel from "../status-label";
+
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { paymentNudge } from "../../lib/payment-nudge";
@@ -120,7 +122,10 @@ export default function Reports({ group, request }: {
           </form>}
           <ul className="space-y-2">
             {report.summary.dues.map((due) => <li key={due.id} className="border-t border-stone-200 pt-2">
-              <p>{due.name} · {due.dueDate} · {rupiah(due.amount)} · {labels[due.status]}</p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className="break-words">{due.name} · {due.dueDate} · {rupiah(due.amount)}</p>
+                <StatusLabel status={due.status}>{labels[due.status]}</StatusLabel>
+              </div>
               {treasurer && due.status === "LATE" && (
                 <a className="mr-3 inline-flex min-h-11 items-center underline"
                   href={paymentNudge(group.name, due.name, due.amount, due.dueDate)} target="_blank" rel="noreferrer">

@@ -30,9 +30,9 @@ export default function Home() {
             <div className="mt-4 rounded-2xl bg-white p-4 text-ink sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div><p className="text-sm text-muted">Iuran terkumpul</p><p className="text-3xl font-bold tabular-nums">Rp75.000</p></div>
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-brand-deep">3 dari 4 lunas</span>
+                <span className="rounded-full bg-success-soft px-3 py-1 text-sm font-semibold text-brand-deep">3 dari 4 lunas</span>
               </div>
-              <div aria-hidden="true" className="mt-4 h-2 overflow-hidden rounded-full bg-emerald-100"><div className="h-full w-3/4 rounded-full bg-brand" /></div>
+              <div aria-hidden="true" className="mt-4 h-2 overflow-hidden rounded-full bg-success-soft"><div className="h-full w-3/4 rounded-full bg-brand" /></div>
               <dl className="mt-5 grid gap-3 border-t border-line pt-4 sm:grid-cols-2">
                 <div><dt className="text-sm text-muted">Target iuran</dt><dd className="font-semibold">Rp100.000</dd></div>
                 <div><dt className="text-sm text-muted">Penerima putaran</dt><dd className="font-semibold">Rani</dd></div>
