@@ -25,7 +25,7 @@ export default async function DashboardPage() {
         <Logout />
         <nav aria-label="Navigasi dasbor" className="order-last flex w-full flex-wrap items-center gap-x-5 sm:order-none sm:w-auto">
           <a className="dashboard-link" href="#kelompok">Kelompok</a>
-          <a className="dashboard-link" href="#pengingat">Pengingat</a>
+          <a className="dashboard-link" href="#pengingat" aria-controls="pengingat">Pengingat</a>
         </nav>
       </header>
       <main id="konten" tabIndex={-1} className="pb-12 pt-5 sm:pt-8">

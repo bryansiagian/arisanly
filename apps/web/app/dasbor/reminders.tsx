@@ -2,6 +2,7 @@
 
 import { SkeletonRows } from "../skeleton";
 
+import DashboardIcon from "./dashboard-icon";
 import StatusLabel from "../status-label";
 
 import { useEffect, useState } from "react";
@@ -57,15 +58,18 @@ export default function Reminders() {
 
   const unread = items?.filter((item) => !item.read).length;
   return (
-    <details className="my-5 rounded-2xl border border-line bg-white px-4 shadow-sm">
-      <summary className="min-h-11 cursor-pointer py-2 font-semibold">
-        Pengingat iuran {unread ? <span className="font-normal">({unread} belum dibaca)</span> : null}
+    <details id="pengingat" className="dashboard-glass group lg:col-start-2 lg:row-start-1">
+      <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-semibold">
+        <DashboardIcon name="bell" className="size-5 shrink-0 text-attention" />
+        <span className="flex-1">Pengingat iuran</span>
+        {!!unread && <span className="rounded-full bg-attention-soft px-2 py-1 text-xs font-bold text-attention">{unread}<span className="sr-only"> belum dibaca</span></span>}
+        <DashboardIcon name="arrow" className="size-4 shrink-0 text-muted group-open:rotate-90 motion-safe:transition-transform" />
       </summary>
       <div className="space-y-2 pb-3">
         {error && <p role="alert" className="notice-error">Pengingat gagal dimuat atau diperbarui.</p>}
         {!items && !error && <SkeletonRows label="Memuat pengingat…" rows={2} />}
         {items?.length === 0 && <p>Belum ada pengingat iuran.</p>}
-        <button type="button" onClick={() => void refresh()} className="min-h-11 underline">Muat ulang pengingat</button>
+        <button type="button" onClick={() => void refresh()} className="dashboard-link text-sm">Muat ulang pengingat</button>
         <ul aria-live="polite" className="space-y-2">
           {items?.map((item) => (
             <li key={item.id} className="break-words border-t border-stone-200 pt-2">
@@ -76,7 +80,7 @@ export default function Reminders() {
               <p>{currency.format(BigInt(item.amount))} · {item.dueDate}</p>
               {item.read ? <p className="text-sm text-stone-600">Sudah dibaca</p> :
                 <button type="button" disabled={pending !== ""} onClick={() => void markRead(item.id)}
-                  className="min-h-11 underline">Tandai dibaca<span className="sr-only"> · {item.groupName} · {item.dueDate} · {labels[item.stage]}</span></button>}
+                  className="dashboard-link text-sm">Tandai dibaca<span className="sr-only"> · {item.groupName} · {item.dueDate} · {labels[item.stage]}</span></button>}
             </li>
           ))}
         </ul>

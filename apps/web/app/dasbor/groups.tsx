@@ -4,6 +4,7 @@ import { SkeletonRows } from "../skeleton";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import DashboardIcon from "./dashboard-icon";
 import Arisan from "./arisan";
 import Reports from "./reports";
 
@@ -44,6 +45,8 @@ export default function Groups({ userID }: { userID: string }) {
   const [selected, setSelected] = useState<Group | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [invite, setInvite] = useState<{ code: string; link: string } | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [opening, setOpening] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -72,6 +75,16 @@ export default function Groups({ userID }: { userID: string }) {
     setSelected(group);
   }
 
+  async function openWorkspace(group: Group) {
+    setOpening(true);
+    try {
+      await open(group);
+      requestAnimationFrame(() => document.getElementById("detail-kelompok")?.focus());
+    } finally {
+      setOpening(false);
+    }
+  }
+
   function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -80,7 +93,8 @@ export default function Groups({ userID }: { userID: string }) {
       const group = await groupRequest("", "POST", { name: data.get("name"), type: data.get("type") });
       setGroups((items) => [group, ...(items ?? [])]);
       form.reset();
-      await open(group);
+      setComposerOpen(false);
+      await openWorkspace(group);
     });
   }
 
@@ -96,41 +110,59 @@ export default function Groups({ userID }: { userID: string }) {
   }
 
   return (
-    <section className="space-y-4" aria-labelledby="groups-heading">
-      <h2 id="groups-heading" className="text-2xl font-bold tracking-tight">Kelompok saya</h2>
-      <div className="panel">
+    <section id="kelompok" className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-1" aria-labelledby="groups-heading">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
+        <div>
+          <h2 id="groups-heading" className="text-3xl font-bold tracking-[-.045em] sm:text-4xl">Kelompok saya</h2>
+          {groups && <p className="mt-1 text-sm text-muted">{groups.length} kelompok</p>}
+        </div>
+        <button type="button" className="action-gold" aria-expanded={composerOpen} aria-controls="group-composer"
+          onClick={() => setComposerOpen((shown) => !shown)}>
+          {composerOpen ? "Tutup formulir" : "Buat kelompok"}
+          {!composerOpen && <DashboardIcon name="plus" className="size-4" />}
+        </button>
+      </div>
+      <div id="group-composer" hidden={!composerOpen} className="dashboard-glass">
         <form onSubmit={create} className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
           <label className="grid gap-1 text-sm font-semibold">
             Nama kelompok
-            <input name="name" required maxLength={100} className={control} />
+            <input name="name" placeholder="Contoh: Arisan keluarga" required maxLength={100} className={control} />
           </label>
           <label className="grid gap-1 text-sm font-semibold">
             Jenis kelompok
             <select name="type" className={control}><option value="ARISAN">Arisan</option><option value="KAS">Kas</option></select>
           </label>
-          <button disabled={busy || groups === null} className="action-primary">Buat kelompok</button>
+          <button disabled={busy || groups === null} className="action-primary">{busy ? "Menyimpan…" : "Simpan kelompok"}</button>
         </form>
-        <a href="/gabung" className="mt-3 inline-flex min-h-11 items-center text-brand underline">Gabung dengan kode</a>
       </div>
+      <a href="/gabung" className="dashboard-link text-sm">Gabung dengan kode <DashboardIcon name="arrow" className="size-4" /></a>
       {error && <p role="alert" className="notice-error">{error}</p>}
-      {groups === null ? <SkeletonRows label="Memuat kelompok…" rows={3} /> : groups.length === 0 ? <p className="panel text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {groups === null ? <SkeletonRows label="Memuat kelompok…" rows={3} /> : groups.length === 0 ? <p className="dashboard-glass text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
+        <ul className="divide-y divide-line border-y border-line">
           {groups.map((group) => <li key={group.id}>
             <button type="button" disabled={busy} aria-pressed={selected?.id === group.id}
-              className="action min-h-16 w-full justify-start gap-2 text-left aria-pressed:border-brand aria-pressed:bg-canvas" onClick={() => void run(() => open(group))}>
-              <span className="min-w-0 break-words">
-                <span className="block font-bold">{group.name}</span>
-                <span className="block text-xs font-medium text-muted">{group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}</span>
+              className="dashboard-group-row flex min-h-[4.75rem] w-full items-center gap-3 px-2 py-3 text-left hover:bg-white/70 aria-pressed:bg-attention-soft/70 disabled:cursor-wait sm:px-3"
+              onClick={() => void run(() => openWorkspace(group))}>
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-brand">
+                <DashboardIcon name={group.type === "KAS" ? "cash" : "group"} />
               </span>
+              <span className="min-w-0 flex-1 break-words">
+                <span className="block font-bold">{group.name}</span>
+                <span className="mt-0.5 block text-sm text-muted">{group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}</span>
+              </span>
+              <DashboardIcon name="arrow" className="size-5 shrink-0 text-attention" />
             </button>
           </li>)}
         </ul>
       )}
+      {opening && <SkeletonRows label="Memuat detail kelompok…" rows={2} />}
       {selected && (
-        <section className="panel space-y-5">
-          <h3 className="break-words text-xl font-bold">{selected.name}</h3>
+        <section className="min-w-0 space-y-5 rounded-2xl border border-line bg-white/80 p-4 sm:p-6" aria-labelledby="detail-kelompok">
+          <h3 id="detail-kelompok" tabIndex={-1} className="break-words text-2xl font-bold tracking-tight">{selected.name}</h3>
           {selected.role === "OWNER" && (
-            <>
+            <details className="dashboard-glass">
+              <summary className="flex min-h-11 items-center font-semibold">Pengaturan dan undangan</summary>
+              <div className="space-y-3">
               <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => {
                 event.preventDefault();
                 const name = new FormData(event.currentTarget).get("name");
@@ -141,7 +173,7 @@ export default function Groups({ userID }: { userID: string }) {
                   setGroups((items) => items?.map((item) => item.id === updated.id ? updated : item) ?? []);
                 });
               }}>
-                <input key={selected.id} aria-label="Nama baru kelompok" name="name" defaultValue={selected.name} required maxLength={100} className={control} />
+                <input key={selected.id} aria-label="Nama baru kelompok" name="name" placeholder="Nama kelompok" defaultValue={selected.name} required maxLength={100} className={control} />
                 <button disabled={busy} className={button}>Simpan nama</button>
               </form>
               <form onSubmit={(event) => createInvite(event, selected)} className="flex flex-wrap items-end gap-2">
@@ -155,7 +187,8 @@ export default function Groups({ userID }: { userID: string }) {
                 <p className="break-all">Kode <code>{invite.code}</code></p>
                 <a className="inline-flex min-h-11 items-center underline" href={`https://wa.me/?text=${encodeURIComponent(invite.link)}`} target="_blank" rel="noreferrer">Bagikan lewat WhatsApp</a>
               </div>}
-            </>
+              </div>
+            </details>
           )}
           {selected.type === "ARISAN" && (
             <Arisan key={selected.id} group={selected} members={members} userID={userID} request={groupRequest} />
