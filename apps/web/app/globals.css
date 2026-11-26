@@ -8,3 +8,33 @@ body {
   outline: 2px solid var(--color-blue-700);
   outline-offset: 2px;
 }
+
+@theme {
+  --color-brand: #155d4b;
+  --color-brand-deep: #104638;
+  --color-ink: #152b27;
+  --color-muted: #4e625b;
+  --color-canvas: #f4f7f2;
+  --color-line: #d7e2da;
+}
+
+@layer base {
+  body { @apply bg-canvas text-ink; }
+  button:not(:disabled), summary { cursor: pointer; }
+  input, select, textarea { min-width: 0; max-width: 100%; }
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline-color: var(--color-brand);
+  }
+}
+
+@layer components {
+  .panel { @apply min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm sm:p-6; }
+  .field { @apply min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-base; }
+  .action {
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-white px-4 text-sm font-semibold hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;
+  }
+  .action-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;
+  }
+  .notice-error { @apply rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-900; }
+}
