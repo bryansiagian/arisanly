@@ -16,7 +16,7 @@ export default function Home() {
           <Brand />
           <nav aria-label="Navigasi utama" className="flex items-center gap-5">
             <a href="#cara-kerja" className="hidden min-h-11 items-center text-sm font-semibold sm:inline-flex">Cara kerja</a>
-            <Link href="/masuk" className="action">Masuk <span aria-hidden="true" className="ml-2">↗</span></Link>
+            <Link href="/masuk" className="action-gold">Masuk <span aria-hidden="true" className="ml-2">↗</span></Link>
           </nav>
         </header>
         <main id="konten" className="hero-intro grid flex-1 items-center gap-9 py-9 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12">
@@ -35,9 +35,6 @@ export default function Home() {
           </div>
           <figure className="hero-art relative isolate aspect-[1.05] min-w-0 overflow-hidden rounded-[1.75rem] border border-[#5f6747] bg-brand-deep shadow-xl sm:aspect-[1.22] lg:aspect-[1.12]">
             <Image src="/arisan-cycle.svg" fill preload sizes="(min-width: 1024px) 50vw, 100vw" alt="" className="object-cover" />
-            <figcaption className="absolute top-4 left-4 rounded-full border border-white/20 bg-neutral-950/50 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md sm:top-6 sm:left-6">
-              Contoh putaran arisan
-            </figcaption>
             <div className="hero-glass absolute right-3 bottom-3 left-3 rounded-2xl p-3.5 sm:right-5 sm:bottom-5 sm:left-auto sm:min-w-64 sm:p-5">
               <div className="flex items-center justify-between gap-3">
                 <div><p className="text-xs text-stone-200">Iuran terkumpul</p><p className="text-2xl font-bold tracking-tight text-white tabular-nums sm:text-3xl">Rp75.000</p></div>
