@@ -1,3 +1,4 @@
+import Brand from "../../brand";
 import { notFound } from "next/navigation";
 import { internalAPI } from "../../../lib/auth-api";
 
@@ -12,9 +13,12 @@ export default async function PublicReport({ params }: { params: Promise<{ code:
   const report: { type: string; balance: string } = await response.json();
   const format = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
   return (
-    <main className="mx-auto max-w-xl space-y-4 px-6 py-12">
-      <h1 className="text-3xl font-semibold">Ringkasan {report.type === "KAS" ? "kas" : "arisan"}</h1>
-      <p>Saldo dana <strong>{format.format(BigInt(report.balance))}</strong></p>
+    <main className="mx-auto max-w-xl space-y-5 px-5 py-10">
+      <Brand />
+      <section className="panel space-y-4">
+        <h1 className="text-3xl font-semibold">Ringkasan {report.type === "KAS" ? "kas" : "arisan"}</h1>
+        <p className="text-muted">Saldo dana <strong className="block text-3xl text-ink tabular-nums">{format.format(BigInt(report.balance))}</strong></p>
+      </section>
     </main>
   );
 }

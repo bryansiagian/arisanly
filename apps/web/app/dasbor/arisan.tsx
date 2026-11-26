@@ -18,8 +18,8 @@ type Audit = {
   details: { roundId?: string; candidates?: string[]; recipientId?: string };
 };
 type Request = (path: string, method?: string, payload?: object, key?: string) => Promise<unknown>;
-const control = "min-h-11 rounded-lg border border-stone-400 bg-white px-3";
-const button = "min-h-11 rounded-lg border border-stone-500 px-3 disabled:opacity-50";
+const control = "field";
+const button = "action";
 const status: Record<string, string> = {
   OPEN: "Iuran dibuka", COLLECTED: "Iuran lengkap", PAID_OUT: "Dana dicatat cair", CLOSED: "Ditutup",
   PENDING: "Menunggu pemeriksaan", CONFIRMED: "Pembayaran diterima", REJECTED: "Klaim ditolak",
@@ -99,9 +99,9 @@ export default function Arisan({ group, members, userID, request }: {
   return (
     <section className="space-y-4 border-y border-stone-300 py-4" aria-label="Putaran arisan">
       <h4 className="text-lg font-semibold">Putaran arisan</h4>
-      {error && <p role="alert" className="text-red-800">{error}</p>}
+      {error && <p role="alert" className="notice-error">{error}</p>}
       {!history && !error && <p role="status">Memuat putaran…</p>}
-      {history?.cycle && <p>Saldo dana {currency.format(BigInt(history.fundBalance))}</p>}
+      {history?.cycle && <p className="rounded-xl bg-emerald-50 p-3 text-brand-deep">Saldo dana <strong className="ml-1 tabular-nums">{currency.format(BigInt(history.fundBalance))}</strong></p>}
       {history && !history.cycle && <p>Belum ada siklus arisan.</p>}
       {history?.cycle?.closed && <p>Siklus terakhir sudah selesai.</p>}
       {history && (!history.cycle || history.cycle.closed) && owner && (
@@ -135,8 +135,8 @@ export default function Arisan({ group, members, userID, request }: {
         </form>
       )}
       {history?.rounds.map((round) => (
-        <article key={round.id} className="space-y-2 rounded-lg border border-stone-300 p-3">
-          <h5 className="font-semibold">Putaran {round.number} · {status[round.status]}</h5>
+        <article key={round.id} className="space-y-3 rounded-xl border border-line bg-canvas p-3 sm:p-4">
+          <h5 className="font-bold">Putaran {round.number} · {status[round.status]}</h5>
           <p>Jatuh tempo {round.dueDate} · Penerima {round.recipientName ?? "belum ditentukan"}</p>
           <p>Total iuran {currency.format(round.obligations.reduce((total, item) => total + BigInt(item.amount), BigInt(0)))}</p>
           {treasurer && !round.recipientId && ["OPEN", "COLLECTED"].includes(round.status) &&

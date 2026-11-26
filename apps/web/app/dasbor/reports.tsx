@@ -14,8 +14,8 @@ type Report = {
   rows: { at: string; type: string; category: string; note: string; member: string; amount: string; delta: string }[];
 };
 type Request = (path: string, method?: string, payload?: object, key?: string) => Promise<unknown>;
-const control = "min-h-11 rounded-lg border border-stone-400 bg-white px-3";
-const button = "min-h-11 rounded-lg border border-stone-500 px-3 disabled:opacity-50";
+const control = "field";
+const button = "action";
 const format = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 const rupiah = (value: string) => format.format(BigInt(value));
 const labels: Record<string, string> = {
@@ -83,13 +83,13 @@ export default function Reports({ group, request }: {
         <label className="grid gap-1">Bulan laporan<input type="month" name="month" className={control} /></label>
         <button disabled={busy} className={button}>Muat laporan</button>
       </form>
-      {notice && <p role="alert" className="text-red-800">{notice}</p>}
+      {notice && <p role="alert" className="notice-error">{notice}</p>}
       {report && <>
-        <dl className="grid grid-cols-2 gap-3">
-          <div><dt>Saldo saat ini</dt><dd>{rupiah(report.summary.balance)}</dd></div>
-          <div><dt>Saldo awal {report.month}</dt><dd>{rupiah(report.summary.opening)}</dd></div>
-          <div><dt>Pemasukan bulan ini</dt><dd>{rupiah(report.summary.income)}</dd></div>
-          <div><dt>Pengeluaran bulan ini</dt><dd>{rupiah(report.summary.expenses)}</dd></div>
+        <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Saldo saat ini</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.balance)}</dd></div>
+          <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Saldo awal {report.month}</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.opening)}</dd></div>
+          <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Pemasukan bulan ini</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.income)}</dd></div>
+          <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Pengeluaran bulan ini</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.expenses)}</dd></div>
         </dl>
         <a className="inline-flex min-h-11 items-center underline" href={`/api/v1/groups${root}/export.csv?month=${report.month}`}>Unduh CSV {report.month}</a>
         {kas && treasurer && <form onSubmit={cash} className="grid gap-2">

@@ -52,12 +52,12 @@ export default function Reminders() {
 
   const unread = items?.filter((item) => !item.read).length;
   return (
-    <details className="my-6 rounded-lg border border-stone-300 px-4">
+    <details className="my-5 rounded-2xl border border-line bg-white px-4 shadow-sm">
       <summary className="min-h-11 cursor-pointer py-2 font-semibold">
         Pengingat iuran {unread ? <span className="font-normal">({unread} belum dibaca)</span> : null}
       </summary>
       <div className="space-y-2 pb-3">
-        {error && <p role="alert" className="text-red-800">Pengingat gagal dimuat atau diperbarui.</p>}
+        {error && <p role="alert" className="notice-error">Pengingat gagal dimuat atau diperbarui.</p>}
         {!items && !error && <p role="status">Memuat pengingat…</p>}
         {items?.length === 0 && <p>Belum ada pengingat iuran.</p>}
         <button type="button" onClick={() => void refresh()} className="min-h-11 underline">Muat ulang pengingat</button>
