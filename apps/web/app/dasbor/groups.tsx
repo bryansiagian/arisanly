@@ -161,32 +161,32 @@ export default function Groups({ userID }: { userID: string }) {
           <h3 id="detail-kelompok" tabIndex={-1} className="break-words text-2xl font-bold tracking-tight">{selected.name}</h3>
           {selected.role === "OWNER" && (
             <details className="dashboard-glass">
-              <summary className="flex min-h-11 items-center font-semibold">Pengaturan dan undangan</summary>
+              <summary className="min-h-11 py-2 font-semibold">Pengaturan dan undangan</summary>
               <div className="space-y-3">
-              <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => {
-                event.preventDefault();
-                const name = new FormData(event.currentTarget).get("name");
-                void run(async () => {
-                  await groupRequest(`/${selected.id}`, "PATCH", { name });
-                  const updated = await groupRequest(`/${selected.id}`);
-                  setSelected(updated);
-                  setGroups((items) => items?.map((item) => item.id === updated.id ? updated : item) ?? []);
-                });
-              }}>
-                <input key={selected.id} aria-label="Nama baru kelompok" name="name" placeholder="Nama kelompok" defaultValue={selected.name} required maxLength={100} className={control} />
-                <button disabled={busy} className={button}>Simpan nama</button>
-              </form>
-              <form onSubmit={(event) => createInvite(event, selected)} className="flex flex-wrap items-end gap-2">
-                <label className="grid gap-1">Kuota undangan<input name="uses" type="number" min={1} max={100} defaultValue={10} required className={control} /></label>
-                <button disabled={busy} className={button}>Buat undangan</button>
-              </form>
-              {invite && <div className="space-y-2">
-                <label className="grid gap-1">Tautan undangan (berlaku 7 hari)
-                  <input readOnly value={invite.link} className={control} onFocus={(event) => event.currentTarget.select()} />
-                </label>
-                <p className="break-all">Kode <code>{invite.code}</code></p>
-                <a className="inline-flex min-h-11 items-center underline" href={`https://wa.me/?text=${encodeURIComponent(invite.link)}`} target="_blank" rel="noreferrer">Bagikan lewat WhatsApp</a>
-              </div>}
+                <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => {
+                  event.preventDefault();
+                  const name = new FormData(event.currentTarget).get("name");
+                  void run(async () => {
+                    await groupRequest(`/${selected.id}`, "PATCH", { name });
+                    const updated = await groupRequest(`/${selected.id}`);
+                    setSelected(updated);
+                    setGroups((items) => items?.map((item) => item.id === updated.id ? updated : item) ?? []);
+                  });
+                }}>
+                  <input key={selected.id} aria-label="Nama baru kelompok" name="name" placeholder="Nama kelompok" defaultValue={selected.name} required maxLength={100} className={control} />
+                  <button disabled={busy} className={button}>Simpan nama</button>
+                </form>
+                <form onSubmit={(event) => createInvite(event, selected)} className="flex flex-wrap items-end gap-2">
+                  <label className="grid gap-1">Kuota undangan<input name="uses" type="number" min={1} max={100} defaultValue={10} required className={control} /></label>
+                  <button disabled={busy} className={button}>Buat undangan</button>
+                </form>
+                {invite && <div className="space-y-2">
+                  <label className="grid gap-1">Tautan undangan (berlaku 7 hari)
+                    <input readOnly value={invite.link} className={control} onFocus={(event) => event.currentTarget.select()} />
+                  </label>
+                  <p className="break-all">Kode <code>{invite.code}</code></p>
+                  <a className="inline-flex min-h-11 items-center underline" href={`https://wa.me/?text=${encodeURIComponent(invite.link)}`} target="_blank" rel="noreferrer">Bagikan lewat WhatsApp</a>
+                </div>}
               </div>
             </details>
           )}
