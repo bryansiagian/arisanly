@@ -137,4 +137,37 @@
   .account-field::placeholder, .account-password input::placeholder {
     @apply text-muted;
   }
+  .dashboard-nav {
+    background: linear-gradient(110deg, rgb(255 255 255 / .76), rgb(250 247 241 / .82));
+    backdrop-filter: blur(14px);
+  }
+  .dashboard-ledger-art {
+    @apply pointer-events-none absolute inset-y-0 right-0 hidden w-[44%] bg-contain bg-right bg-no-repeat opacity-60 md:block;
+    background-image: url("/dashboard-ledger-lines.svg");
+    mask-image: linear-gradient(to right, transparent, black 42%);
+  }
+  .dashboard-link {
+    @apply inline-flex min-h-11 items-center gap-1 font-semibold text-brand-deep underline decoration-gold/75 underline-offset-4 hover:decoration-2;
+  }
+  .dashboard-glass {
+    @apply min-w-0 rounded-2xl border border-line p-4 sm:p-5;
+    background: linear-gradient(140deg, rgb(255 255 255 / .92), rgb(248 236 210 / .42));
+    box-shadow: 0 10px 24px rgb(75 52 18 / .055);
+    backdrop-filter: blur(12px);
+  }
+  .dashboard :is(#pengingat, #kelompok, #detail-kelompok) { scroll-margin-block-start: 1rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-masthead { animation: editorial-in 420ms ease-out both; }
+  .dashboard-workspace { animation: editorial-in 480ms 65ms ease-out both; }
+  .dashboard :is(.dashboard-link, .action, .action-primary, .action-gold) {
+    transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  }
+  .dashboard :is(.dashboard-link, .action, .action-primary, .action-gold):active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .dashboard-group-row { transition: background-color 180ms ease, box-shadow 180ms ease; }
+  .dashboard-group-row svg:last-child { transition: transform 180ms ease; }
+  .dashboard-group-row:hover:not(:disabled) svg:last-child { transform: translateX(3px); }
 }
