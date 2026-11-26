@@ -1,14 +1,5 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-stone-50 text-stone-950 antialiased;
-}
-
-:where(a, button, input, select, textarea, summary):focus-visible {
-  outline: 2px solid var(--color-blue-700);
-  outline-offset: 2px;
-}
-
 @theme {
   --color-brand: #155d4b;
   --color-brand-deep: #104638;
@@ -19,11 +10,12 @@ body {
 }
 
 @layer base {
-  body { @apply bg-canvas text-ink; }
+  body { @apply bg-canvas text-ink antialiased; }
   button:not(:disabled), summary { cursor: pointer; }
   input, select, textarea { min-width: 0; max-width: 100%; }
   :where(a, button, input, select, textarea, summary):focus-visible {
-    outline-color: var(--color-brand);
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 }
 

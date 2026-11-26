@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import Brand from "./brand";
 
 const errors: Record<string, string> = {
   invalid_input: "Periksa nama, email, dan kata sandi. Gunakan 12–128 byte untuk kata sandi.",
@@ -24,6 +25,7 @@ export default function AuthForm({ register = false, registered = false }: {
   registered?: boolean;
 }) {
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
   const heading = register ? "Buat akun" : "Masuk";
 
@@ -53,37 +55,43 @@ export default function AuthForm({ register = false, registered = false }: {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-6 py-10">
-      <Link href="/" className="self-start font-semibold">Arisanly</Link>
-      <h1 className="text-3xl font-semibold">{heading}</h1>
-      {registered && <p role="status">Akun sudah dibuat. Silakan masuk.</p>}
-      <form onSubmit={submit} className="grid gap-4">
-        {register && (
+    <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-5 px-5 py-8">
+      <Brand />
+      <div className="panel space-y-5">
+        <h1 className="text-3xl font-bold tracking-tight">{heading}</h1>
+        {registered && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-brand-deep">Akun sudah dibuat. Silakan masuk.</p>}
+        <form onSubmit={submit} className="grid gap-4">
+          {register && (
+            <label className="grid gap-1">
+              Nama
+              <input name="name" autoComplete="name" required maxLength={100}
+                className="field" />
+            </label>
+          )}
           <label className="grid gap-1">
-            Nama
-            <input name="name" autoComplete="name" required maxLength={100}
-              className="min-h-11 rounded-lg border border-stone-400 bg-white px-3" />
+            Email
+            <input name="email" type="email" autoComplete="email" required maxLength={254}
+              className="field" />
           </label>
-        )}
-        <label className="grid gap-1">
-          Email
-          <input name="email" type="email" autoComplete="email" required maxLength={254}
-            className="min-h-11 rounded-lg border border-stone-400 bg-white px-3" />
-        </label>
-        <label className="grid gap-1">
-          Kata sandi
-          <input name="password" type="password" autoComplete={register ? "new-password" : "current-password"}
-            required minLength={register ? 12 : undefined} maxLength={128}
-            className="min-h-11 rounded-lg border border-stone-400 bg-white px-3" />
-        </label>
-        {error && <p role="alert" className="text-red-800">{error}</p>}
-        <button disabled={pending} className="min-h-11 rounded-lg bg-stone-900 px-4 font-medium text-white disabled:opacity-60">
-          {pending ? "Memproses…" : heading}
-        </button>
-      </form>
-      <Link href={register ? "/masuk" : "/daftar"} className="flex min-h-11 items-center self-start underline">
-        {register ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
-      </Link>
+          <label className="grid gap-1">
+            Kata sandi
+            <input id="account-password" name="password" type={showPassword ? "text" : "password"} aria-describedby={register ? "password-help" : undefined} autoComplete={register ? "new-password" : "current-password"}
+              required minLength={register ? 12 : undefined} maxLength={128}
+              className="field" />
+          </label>
+          {register && <p id="password-help" className="text-sm text-muted">Gunakan minimal 12 karakter.</p>}
+          <button type="button" aria-controls="account-password" onClick={() => setShowPassword(!showPassword)} className="action justify-self-start">
+            {showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+          </button>
+          {error && <p role="alert" className="notice-error">{error}</p>}
+          <button disabled={pending} className="action-primary">
+            {pending ? "Memproses…" : heading}
+          </button>
+        </form>
+        <Link href={register ? "/masuk" : "/daftar"} className="flex min-h-11 items-center self-start text-brand underline">
+          {register ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
+        </Link>
+      </div>
     </main>
   );
 }
