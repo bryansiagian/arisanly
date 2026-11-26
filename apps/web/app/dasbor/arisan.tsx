@@ -1,5 +1,7 @@
 "use client";
 
+import { SkeletonRows } from "../skeleton";
+
 import StatusLabel from "../status-label";
 
 import { useEffect, useState } from "react";
@@ -102,7 +104,7 @@ export default function Arisan({ group, members, userID, request }: {
     <section className="space-y-4 border-y border-stone-300 py-4" aria-label="Putaran arisan">
       <h4 className="text-lg font-semibold">Putaran arisan</h4>
       {error && <p role="alert" className="notice-error">{error}</p>}
-      {!history && !error && <p role="status">Memuat putaran…</p>}
+      {!history && !error && <SkeletonRows label="Memuat putaran…" rows={2} />}
       {history?.cycle && <p className="rounded-xl border border-line bg-white p-3 text-ink">Saldo dana <strong className="ml-1 tabular-nums">{currency.format(BigInt(history.fundBalance))}</strong></p>}
       {history && !history.cycle && <p>Belum ada siklus arisan.</p>}
       {history?.cycle?.closed && <p>Siklus terakhir sudah selesai.</p>}

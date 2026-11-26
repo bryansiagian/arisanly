@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PageSkeleton } from "../skeleton";
 import AuthForm, { postAuth } from "../auth-form";
 
 let recovery: Promise<boolean> | undefined;
@@ -28,5 +29,5 @@ export default function SessionRecovery() {
   }, []);
 
   if (done) return <AuthForm />;
-  return <main className="p-6"><p role="status">Memeriksa sesi…</p></main>;
+  return <PageSkeleton label="Memeriksa sesi…" />;
 }

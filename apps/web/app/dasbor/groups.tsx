@@ -1,5 +1,7 @@
 "use client";
 
+import { SkeletonRows } from "../skeleton";
+
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import Arisan from "./arisan";
@@ -111,7 +113,7 @@ export default function Groups({ userID }: { userID: string }) {
         <a href="/gabung" className="mt-3 inline-flex min-h-11 items-center text-brand underline">Gabung dengan kode</a>
       </div>
       {error && <p role="alert" className="notice-error">{error}</p>}
-      {groups === null ? <p role="status">Memuat kelompok…</p> : groups.length === 0 ? <p className="panel text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
+      {groups === null ? <SkeletonRows label="Memuat kelompok…" rows={3} /> : groups.length === 0 ? <p className="panel text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group) => <li key={group.id}>
             <button type="button" disabled={busy} aria-pressed={selected?.id === group.id}
