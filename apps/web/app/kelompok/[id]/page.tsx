@@ -27,7 +27,7 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="dashboard mx-auto max-w-5xl px-4 sm:px-8">
-      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
+      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 py-3">
         <Brand />
         <AccountMenu name={user.name} email={user.email} />
       </header>

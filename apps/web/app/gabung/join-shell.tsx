@@ -6,7 +6,7 @@ import Brand from "../brand";
 export default function JoinShell({ children }: { children: ReactNode }) {
   return (
     <div className="dashboard mx-auto max-w-6xl px-4 sm:px-8">
-      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
+      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 py-3">
         <Brand />
         <Link href="/dasbor#kelompok" className="dashboard-link text-sm">Kembali ke dasbor</Link>
       </header>

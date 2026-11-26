@@ -4,7 +4,7 @@ import { SkeletonRows } from "../skeleton";
 export default function Loading() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12">
-      <header className="dashboard-nav flex items-center justify-between border-b border-line py-3">
+      <header className="dashboard-nav flex items-center justify-between py-3">
         <Brand />
         <div aria-hidden="true" className="skeleton h-11 w-20 rounded-lg" />
       </header>

@@ -17,7 +17,7 @@ export function PageSkeleton({ kind = "form", label = "Memuat halaman…" }: {
     <main role="status" className={kind === "form" ? "mx-auto max-w-lg px-5 py-10" : "mx-auto max-w-6xl px-5 py-6 sm:px-8"}>
       <span className="sr-only">{label}</span>
       <div aria-hidden="true">
-        <div className="mb-6 flex items-center justify-between border-b border-line pb-4">
+        <div className="mb-6 flex items-center justify-between pb-4">
           <div className="skeleton h-10 w-28 rounded-xl" />
           {kind !== "form" && <div className="skeleton h-10 w-20 rounded-lg" />}
         </div>
