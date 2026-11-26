@@ -41,3 +41,52 @@
   .status-label[data-tone="danger"] { @apply bg-danger-soft text-danger; }
   .status-label[data-tone="success"] { @apply bg-success-soft text-brand; }
 }
+
+@theme {
+  --color-gold: #f59e0b;
+}
+
+@layer base {
+  #cara-kerja { scroll-margin-block-start: 1rem; }
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline-color: #854d0e;
+  }
+}
+@layer components {
+  .action-gold {
+    @apply inline-flex min-h-11 items-center justify-center gap-3 rounded-lg bg-gold px-5 text-sm font-bold text-stone-950 hover:bg-amber-300;
+  }
+  .hero-highlight {
+    background-image: linear-gradient(transparent 72%, #f59e0b 72%, #f59e0b 92%, transparent 92%);
+  }
+  .hero-glass {
+    background: linear-gradient(130deg, rgb(45 49 34 / .86), rgb(23 36 30 / .75));
+    border: 1px solid rgb(255 247 221 / .32);
+    box-shadow: 0 14px 38px rgb(0 0 0 / .25);
+    backdrop-filter: blur(14px);
+  }
+}
+
+@keyframes editorial-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fill-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .hero-intro { animation: editorial-in 480ms ease-out both; }
+  .hero-art { animation: editorial-in 650ms 80ms ease-out both; }
+  .hero-progress { transform-origin: left; animation: fill-progress 650ms 280ms ease-out both; }
+  :where(.action, .action-primary, .action-gold) { transition: background-color 180ms, transform 150ms; }
+  :where(.action, .action-primary, .action-gold):active { transform: translateY(1px) scale(.98); }
+  @supports (animation-timeline: view()) {
+    .scroll-reveal {
+      animation: editorial-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
