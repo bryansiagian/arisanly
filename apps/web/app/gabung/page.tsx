@@ -41,7 +41,7 @@ export default function JoinPage() {
   return (
     <main className="mx-auto max-w-lg space-y-5 px-5 py-10">
       <Brand />
-      <div className="panel space-y-4">
+      <div className="panel space-y-4 border-t-2 border-t-gold">
         <h1 className="text-3xl font-bold tracking-tight">Gabung kelompok</h1>
         <form onSubmit={submit} className="grid gap-3">
           <label className="grid gap-1">Kode undangan

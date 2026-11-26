@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" fill="none">
+  <defs>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0H0V38" stroke="#EFE6CE" stroke-opacity=".16"/></pattern>
+    <radialGradient id="wash" cx=".53" cy=".46" r=".65"><stop stop-color="#725127"/><stop offset=".66" stop-color="#283b30"/><stop offset="1" stop-color="#172821"/></radialGradient>
+    <linearGradient id="coin" x1="205" y1="132" x2="420" y2="372" gradientUnits="userSpaceOnUse"><stop stop-color="#fff0b7"/><stop offset=".48" stop-color="#f59e0b"/><stop offset="1" stop-color="#ae5e07"/></linearGradient>
+    <linearGradient id="line" x1="100" y1="420" x2="500" y2="92" gradientUnits="userSpaceOnUse"><stop stop-color="#f59e0b" stop-opacity=".18"/><stop offset=".6" stop-color="#fff1c8"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+  </defs>
+  <path fill="url(#wash)" d="M0 0h640v560H0z"/>
+  <path fill="url(#grid)" d="M0 0h640v560H0z"/>
+  <g stroke="#ffe2a0" opacity=".28"><circle cx="320" cy="265" r="178"/><circle cx="320" cy="265" r="212" stroke-dasharray="2 7"/><path d="M320 33v460M84 265h472"/></g>
+  <g transform="rotate(-29 320 265)">
+    <ellipse cx="320" cy="265" rx="260" ry="111" stroke="url(#line)" stroke-width="1.5"/>
+    <ellipse cx="320" cy="265" rx="244" ry="89" stroke="#f4bf60" stroke-opacity=".4" stroke-dasharray="3 6"/>
+    <circle cx="79" cy="224" r="11" fill="#F59E0B" stroke="#ffe7a8" stroke-width="2"/>
+    <circle cx="550" cy="316" r="16" fill="#283b30" stroke="#f59e0b" stroke-width="2"/>
+    <path d="M543 316h14m-7-7v14" stroke="#ffdc86" stroke-width="1.5"/>
+  </g>
+  <circle cx="328" cy="277" r="111" fill="#663813" stroke="#f7af3b" stroke-width="2"/>
+  <circle cx="320" cy="265" r="111" fill="#b96c0c" stroke="#ffd885" stroke-width="2"/>
+  <circle cx="320" cy="259" r="104" fill="url(#coin)" stroke="#fff0b7" stroke-width="2"/>
+  <circle cx="320" cy="259" r="90" stroke="#6b410f" stroke-opacity=".65" stroke-width="1.5" stroke-dasharray="2 5"/>
+  <circle cx="320" cy="259" r="81" stroke="#6b410f" stroke-opacity=".55"/>
+  <path d="M272 253a49 49 0 0 1 86-25l7 8m0 0v-20m0 20h-20m23 29a49 49 0 0 1-86 25l-7-8m0 0v20m0-20h20" stroke="#523009" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M307 279v-37h15a10 10 0 0 1 0 20h-15m15 0 12 17" stroke="#523009" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#ffe2a0"><circle cx="320" cy="87" r="4"/><circle cx="142" cy="265" r="4"/><circle cx="498" cy="265" r="4"/><circle cx="320" cy="443" r="4"/></g>
+  <path d="M495 110h26v26m-376 248h-26v-26" stroke="#f59e0b" stroke-width="2"/>
+</svg>

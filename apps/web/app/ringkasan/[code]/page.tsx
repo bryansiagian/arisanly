@@ -15,7 +15,7 @@ export default async function PublicReport({ params }: { params: Promise<{ code:
   return (
     <main className="mx-auto max-w-xl space-y-5 px-5 py-10">
       <Brand />
-      <section className="panel space-y-4">
+      <section className="panel space-y-4 border-t-2 border-t-gold">
         <h1 className="text-3xl font-semibold">Ringkasan {report.type === "KAS" ? "kas" : "arisan"}</h1>
         <p className="text-muted">Saldo dana <strong className="block text-3xl text-ink tabular-nums">{format.format(BigInt(report.balance))}</strong></p>
       </section>

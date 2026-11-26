@@ -1,5 +1,7 @@
 "use client";
 
+import { SkeletonRows } from "../skeleton";
+
 import StatusLabel from "../status-label";
 
 import { useEffect, useState } from "react";
@@ -38,6 +40,7 @@ export default function Reminders() {
   async function refresh() {
     try {
       setError(false);
+      setItems(null);
       setItems(await (await inbox()).json());
     } catch { setError(true); }
   }
@@ -60,7 +63,7 @@ export default function Reminders() {
       </summary>
       <div className="space-y-2 pb-3">
         {error && <p role="alert" className="notice-error">Pengingat gagal dimuat atau diperbarui.</p>}
-        {!items && !error && <p role="status">Memuat pengingat…</p>}
+        {!items && !error && <SkeletonRows label="Memuat pengingat…" rows={2} />}
         {items?.length === 0 && <p>Belum ada pengingat iuran.</p>}
         <button type="button" onClick={() => void refresh()} className="min-h-11 underline">Muat ulang pengingat</button>
         <ul aria-live="polite" className="space-y-2">

@@ -1,5 +1,7 @@
 "use client";
 
+import { SkeletonRows } from "../skeleton";
+
 import StatusLabel from "../status-label";
 
 import { useState } from "react";
@@ -34,6 +36,7 @@ export default function Reports({ group, request }: {
   const treasurer = ["OWNER", "TREASURER"].includes(group.role);
   const [report, setReport] = useState<Report | null>(null);
   const [share, setShare] = useState("");
+  const [loadingReport, setLoadingReport] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [keyStore] = useState(() => new Map<string, string>());
@@ -48,7 +51,12 @@ export default function Reports({ group, request }: {
 
   async function load(month = report?.month ?? "") {
     const query = month ? `?month=${encodeURIComponent(month)}` : "";
-    setReport(await request(root + "/summary" + query) as Report);
+    setLoadingReport(true);
+    try {
+      setReport(await request(root + "/summary" + query) as Report);
+    } finally {
+      setLoadingReport(false);
+    }
   }
 
   function write(path: string, body: object, money = false) {
@@ -86,7 +94,8 @@ export default function Reports({ group, request }: {
         <button disabled={busy} className={button}>Muat laporan</button>
       </form>
       {notice && <p role="alert" className="notice-error">{notice}</p>}
-      {report && <>
+      {loadingReport && <SkeletonRows label="Memuat laporan…" />}
+      {!loadingReport && report && <>
         <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Saldo saat ini</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.balance)}</dd></div>
           <div className="min-w-0 rounded-xl border border-line bg-canvas p-3"><dt className="text-sm text-muted">Saldo awal {report.month}</dt><dd className="break-words text-lg font-bold tabular-nums">{rupiah(report.summary.opening)}</dd></div>
