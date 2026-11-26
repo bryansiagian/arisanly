@@ -26,4 +26,3 @@ export async function groupRequest(path = "", method = "GET", payload?: object, 
   }
   return response.status === 204 ? undefined : response.json();
 }
-

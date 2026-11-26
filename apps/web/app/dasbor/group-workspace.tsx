@@ -52,6 +52,11 @@ export default function GroupWorkspace({ group, initialMembers, userID }: {
         <h1 className="relative mt-2 break-words text-4xl font-bold tracking-[-.055em] sm:text-6xl">{selected.name}</h1>
         <p className="relative mt-2 text-sm text-muted">{members.length} anggota</p>
       </header>
+      <nav aria-label="Bagian kelompok" className="flex flex-wrap gap-x-5 border-b border-line">
+        {selected.type === "ARISAN" && <a href="#putaran" className="dashboard-link text-sm">Putaran</a>}
+        <a href="#laporan" className="dashboard-link text-sm">{selected.type === "KAS" ? "Kas dan laporan" : "Laporan"}</a>
+        <a href="#anggota" className="dashboard-link text-sm">Anggota</a>
+      </nav>
       {error && <p role="alert" className="notice-error">{error}</p>}
       {selected.role === "OWNER" && (
         <details className="dashboard-glass">
@@ -84,10 +89,14 @@ export default function GroupWorkspace({ group, initialMembers, userID }: {
         </details>
       )}
       {selected.type === "ARISAN" && (
-        <Arisan key={selected.id} group={selected} members={members} userID={userID} request={groupRequest} />
+        <div id="putaran" className="scroll-mt-4">
+          <Arisan group={selected} members={members} userID={userID} request={groupRequest} />
+        </div>
       )}
-      <Reports key={selected.id} group={selected} request={groupRequest} />
-      <h2 className="text-xl font-bold tracking-tight">Anggota</h2>
+      <div id="laporan" className="scroll-mt-4">
+        <Reports group={selected} request={groupRequest} />
+      </div>
+      <h2 id="anggota" className="scroll-mt-4 text-xl font-bold tracking-tight">Anggota</h2>
       <ul className="space-y-2">
         {members.map((member) => <li key={member.id} className="flex flex-wrap items-center gap-2">
           <span>{member.name} · {roles[member.role]}</span>

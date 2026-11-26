@@ -19,8 +19,9 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
     internalAPI(`/api/v1/groups/${id}`, { headers }),
   ]);
   if (session.status === 401 || detail.status === 401) redirect("/masuk?sesi=1");
+  if (!session.ok) throw new Error("Gagal memeriksa sesi");
   if (detail.status === 404 || detail.status === 403) notFound();
-  if (!session.ok || !detail.ok) throw new Error("Gagal memuat kelompok");
+  if (!detail.ok) throw new Error("Gagal memuat kelompok");
   const [{ id: userID }, group]: [{ id: string }, Group] = await Promise.all([session.json(), detail.json()]);
 
   return (
