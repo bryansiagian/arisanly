@@ -51,6 +51,34 @@ const dashboard = await request("/dasbor", { headers: { Cookie: initialCookies }
 assert.equal(dashboard.status, 200);
 assert.match(await dashboard.text(), /Auth Smoke Test/);
 
+function updateProfile(body, cookie = initialCookies, origin = new URL(base).origin) {
+  return request("/api/v1/auth/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: cookie, Origin: origin },
+    body: JSON.stringify(body),
+  });
+}
+
+const newName = "Updated account";
+const newEmail = `updated-${randomUUID()}@example.com`;
+const occupiedEmail = `occupied-${randomUUID()}@example.com`;
+assert.equal((await post("register", { email: occupiedEmail, name, password })).status, 201);
+assert.equal((await updateProfile({ name: newName, email }, "")).status, 401);
+assert.equal((await updateProfile({ name: newName, email }, initialCookies, "https://example.com")).status, 403);
+assert.equal((await updateProfile({ name: newName, email })).status, 200);
+assert.equal((await updateProfile({ name: newName, email: newEmail })).status, 400);
+assert.equal((await updateProfile({ name: newName, email: newEmail, currentPassword: "An incorrect password" })).status, 403);
+assert.equal((await updateProfile({ name: newName, email: occupiedEmail, currentPassword: password })).status, 409);
+const updated = await updateProfile({ name: newName, email: newEmail, currentPassword: password });
+assert.equal(updated.status, 200);
+assert.equal((await updated.json()).email, newEmail);
+assert.equal((await post("login", { email, password })).status, 401);
+assert.equal((await post("login", { email: newEmail, password })).status, 204);
+const profilePage = await request("/profil", { headers: { Cookie: initialCookies } });
+assert.equal(profilePage.status, 200);
+assert.match(await profilePage.text(), /Profil saya/);
+assert.equal((await request("/profil")).status, 307);
+
 const attempts = await Promise.all([
   post("refresh", {}, initialCookies), post("refresh", {}, initialCookies),
 ]);
