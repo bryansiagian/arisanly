@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { groupRequest, roles, type Group } from "./group-api";
 
-const control = "field";
 export default function Groups() {
   const router = useRouter();
   const [groups, setGroups] = useState<Group[] | null>(null);
@@ -62,20 +61,37 @@ export default function Groups() {
         </button>
       </div>
       <div id="group-composer" hidden={!composerOpen} className="dashboard-glass">
-        <form onSubmit={create} className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-          <label className="grid gap-1 text-sm font-semibold">
+        <form onSubmit={create} className="grid gap-5" aria-busy={busy}>
+          <label className="grid gap-2 text-sm font-semibold">
             Nama kelompok
-            <input name="name" placeholder="Contoh: Arisan keluarga" required maxLength={100} className={control} />
+            <input name="name" placeholder="Contoh: Arisan keluarga" required maxLength={100} className="account-field" />
           </label>
-          <label className="grid gap-1 text-sm font-semibold">
-            Jenis kelompok
-            <select name="type" className={control}><option value="ARISAN">Arisan</option><option value="KAS">Kas</option></select>
-          </label>
-          <button disabled={busy || groups === null} className="action-primary">{busy ? "Menyimpan…" : "Simpan kelompok"}</button>
+          <fieldset className="min-w-0">
+            <legend className="mb-2 text-sm font-semibold">Jenis kelompok</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([
+                { value: "ARISAN", icon: "group", name: "Arisan", detail: "Iuran rutin dengan penerima bergiliran." },
+                { value: "KAS", icon: "cash", name: "Kas", detail: "Catat iuran, pemasukan, dan pengeluaran." },
+              ] as const).map(({ value, icon, name, detail }) => (
+                <label key={value} className="group-type-option">
+                  <input type="radio" name="type" value={value} defaultChecked={value === "ARISAN"} className="size-4 shrink-0 accent-brand" />
+                  <DashboardIcon name={icon} className="size-5 shrink-0 text-attention" />
+                  <span className="min-w-0">
+                    <span className="block font-bold">{name}</span>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-muted">{detail}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {error && composerOpen && <p role="alert" className="notice-error">{error}</p>}
+          <button disabled={busy || groups === null} className="action-gold sm:justify-self-end">
+            {busy ? "Menyimpan…" : "Buat kelompok"}
+          </button>
         </form>
       </div>
       <a href="/gabung" className="dashboard-link text-sm">Gabung dengan kode <DashboardIcon name="arrow" className="size-4" /></a>
-      {error && <p role="alert" className="notice-error">{error}</p>}
+      {error && !composerOpen && <p role="alert" className="notice-error">{error}</p>}
       {groups === null ? <SkeletonRows label="Memuat kelompok…" rows={3} /> : groups.length === 0 ? <p className="dashboard-glass text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
         <ul className="divide-y divide-line border-y border-line">
           {groups.map((group) => <li key={group.id}>

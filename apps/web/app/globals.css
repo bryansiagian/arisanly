@@ -171,3 +171,11 @@
   .dashboard-group-row svg:last-child { transition: transform 180ms ease; }
   .dashboard-group-row:hover:not(:disabled) svg:last-child { transform: translateX(3px); }
 }
+
+@layer components {
+  .group-type-option {
+    @apply flex min-h-20 cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-white/80 p-3 hover:border-attention/60;
+    @apply has-checked:border-attention has-checked:bg-attention-soft/75 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-attention;
+    @apply motion-safe:transition-colors;
+  }
+}
