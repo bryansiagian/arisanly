@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Brand from "../brand";
+import JoinShell from "./join-shell";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
 export default function JoinPage() {
   const [notice, setNotice] = useState("");
+  const [needsSignIn, setNeedsSignIn] = useState(false);
   const [pending, setPending] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -14,6 +15,7 @@ export default function JoinPage() {
     const input = new FormData(event.currentTarget).get("code");
     const code = String(input || "").trim() || window.location.hash.slice(1);
     setNotice("");
+    setNeedsSignIn(false);
     if (!code) { setNotice("Masukkan kode undangan."); return; }
     setPending(true);
     try {
@@ -27,7 +29,12 @@ export default function JoinPage() {
         const refresh = await post("/api/v1/auth/refresh", {});
         if (refresh.ok) response = await post("/api/v1/groups/join", { code });
       }
-      if (response.ok) { window.location.replace("/dasbor"); return; }
+      if (response.ok) {
+        const group: { id: string } = await response.json();
+        window.location.replace(`/kelompok/${encodeURIComponent(group.id)}`);
+        return;
+      }
+      setNeedsSignIn(response.status === 401);
       setNotice(response.status === 401 ? "Masuk terlebih dahulu, lalu buka kembali tautan ini atau masukkan kodenya." :
         response.status === 410 ? "Undangan kedaluwarsa atau kuotanya sudah habis." :
         "Undangan tidak dapat digunakan. Periksa kodenya.");
@@ -39,20 +46,23 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-5 px-5 py-10">
-      <Brand />
-      <div className="panel space-y-4 border-t-2 border-t-gold">
-        <h1 className="text-3xl font-bold tracking-tight">Gabung kelompok</h1>
-        <form onSubmit={submit} className="grid gap-3">
-          <label className="grid gap-1">Kode undangan
-            <input name="code" maxLength={32} autoComplete="off" aria-describedby="invite-help" className="field" />
-          </label>
-          <p id="invite-help" className="text-sm text-muted">Jika membuka tautan undangan, kamu bisa langsung memilih Gabung.</p>
-          <button disabled={pending} className="action-primary">{pending ? "Memproses…" : "Gabung"}</button>
-        </form>
-        {notice && <p role="alert" className="notice-error">{notice}</p>}
-        <Link href="/masuk" target="_blank" rel="noopener" className="inline-flex min-h-11 items-center underline">Masuk di tab baru</Link>
-      </div>
-    </main>
+    <JoinShell>
+      <h1 className="text-balance text-4xl font-bold leading-none tracking-[-.055em] sm:text-5xl">
+        Gabung kelompok<span aria-hidden="true" className="text-gold">.</span>
+      </h1>
+      <p id="invite-help" className="mt-4 text-muted">Masukkan kode dari pengurus. Jika kamu membuka tautan undangan, langsung pilih Gabung.</p>
+      <form onSubmit={submit} aria-busy={pending} className="mt-6 grid gap-3">
+        <label className="grid gap-2 text-sm font-semibold">Kode undangan
+          <input name="code" maxLength={32} autoComplete="off" autoCapitalize="none" spellCheck={false}
+            placeholder="Tempel kode undangan" aria-describedby={notice ? "invite-help invite-error" : "invite-help"}
+            className="account-field font-mono" />
+        </label>
+        {notice && <p id="invite-error" role="alert" className="notice-error">{notice}</p>}
+        <button disabled={pending} className="action-gold account-submit">{pending ? "Menghubungkan…" : "Gabung"}</button>
+      </form>
+      {needsSignIn && (
+        <Link href="/masuk" target="_blank" rel="noopener" className="account-register mt-4">Masuk di tab baru</Link>
+      )}
+    </JoinShell>
   );
 }

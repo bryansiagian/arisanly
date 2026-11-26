@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" fill="none">
+  <defs>
+    <pattern id="dots" width="21" height="21" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#E9C887" fill-opacity=".23"/></pattern>
+    <radialGradient id="background" cx=".62" cy=".45" r=".73"><stop stop-color="#475541"/><stop offset="1" stop-color="#112821"/></radialGradient>
+    <linearGradient id="paper" x1="151" y1="125" x2="423" y2="338" gradientUnits="userSpaceOnUse"><stop stop-color="#fff5d8"/><stop offset="1" stop-color="#d8b677"/></linearGradient>
+    <linearGradient id="seal" x1="285" y1="227" x2="351" y2="301" gradientUnits="userSpaceOnUse"><stop stop-color="#FFEAC0"/><stop offset=".5" stop-color="#F59E0B"/><stop offset="1" stop-color="#9C5E1E"/></linearGradient>
+  </defs>
+  <path d="M0 0h600v440H0z" fill="url(#background)"/>
+  <path d="M0 0h600v440H0z" fill="url(#dots)"/>
+  <g stroke="#e6c183" stroke-opacity=".32"><circle cx="314" cy="223" r="172"/><circle cx="314" cy="223" r="157" stroke-dasharray="3 7"/><path d="M67 223h473M314 39v360"/></g>
+  <g transform="rotate(-12 300 220)">
+    <rect x="143" y="143" width="330" height="202" rx="16" fill="#142820" opacity=".8"/>
+    <rect x="134" y="128" width="330" height="202" rx="16" fill="url(#paper)" stroke="#FFF1C9" stroke-width="1.5"/>
+    <path d="m137 144 150 113c7 5 16 5 23 0l151-113M138 315l100-86m222 86-100-86" stroke="#80613A" stroke-opacity=".7" stroke-width="1.4"/>
+    <path d="M167 159h40m-40 10h26m202 124h33" stroke="#876A40" stroke-linecap="round"/>
+    <circle cx="300" cy="253" r="35" fill="url(#seal)" stroke="#fff2c9" stroke-width="1.5"/>
+    <circle cx="300" cy="253" r="27" stroke="#814F1C" stroke-opacity=".75"/>
+    <path d="m287 253 9 9 17-19" stroke="#5F3510" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g stroke="#F59E0B" stroke-width="1.5"><path d="M492 104h20m-10-10v20M94 301h18m-9-9v18"/><circle cx="481" cy="300" r="4"/><circle cx="119" cy="130" r="3"/></g>
+</svg>
