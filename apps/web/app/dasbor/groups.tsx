@@ -5,48 +5,15 @@ import { SkeletonRows } from "../skeleton";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import DashboardIcon from "./dashboard-icon";
-import Arisan from "./arisan";
-import Reports from "./reports";
-
-type Group = { id: string; name: string; type: "ARISAN" | "KAS"; role: string };
-type Member = { id: string; name: string; role: string };
-const roles: Record<string, string> = { OWNER: "Pemilik", TREASURER: "Bendahara", MEMBER: "Anggota" };
-
-export async function groupRequest(path = "", method = "GET", payload?: object, key?: string) {
-  const response = await fetch(`/api/v1/groups${path}`, {
-    method,
-    headers: {
-      ...(payload ? { "Content-Type": "application/json" } : {}),
-      ...(key ? { "Idempotency-Key": key } : {}),
-    },
-    body: payload ? JSON.stringify(payload) : undefined,
-    cache: "no-store",
-  });
-  if (response.status === 401) {
-    window.location.replace("/masuk?sesi=1");
-    throw new Error("Sesi perlu diperbarui. Silakan ulangi tindakanmu.");
-  }
-  if (!response.ok) {
-    if (response.status === 429) throw new Error("Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.");
-    if (response.status === 409) throw new Error("Tindakan tidak tersedia pada status saat ini. Muat ulang jika data berubah.");
-    if (response.status === 410) throw new Error("Undangan kedaluwarsa atau kuotanya sudah habis.");
-    if (response.status === 404) throw new Error("Kelompok atau undangan tidak ditemukan.");
-    if (response.status === 403) throw new Error("Kamu tidak memiliki izin untuk melakukan tindakan ini.");
-    throw new Error("Permintaan gagal. Periksa input dan coba lagi.");
-  }
-  return response.status === 204 ? undefined : response.json();
-}
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { groupRequest, roles, type Group } from "./group-api";
 
 const control = "field";
-const button = "action";
-
-export default function Groups({ userID }: { userID: string }) {
+export default function Groups() {
+  const router = useRouter();
   const [groups, setGroups] = useState<Group[] | null>(null);
-  const [selected, setSelected] = useState<Group | null>(null);
-  const [members, setMembers] = useState<Member[]>([]);
-  const [invite, setInvite] = useState<{ code: string; link: string } | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
-  const [opening, setOpening] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,23 +35,6 @@ export default function Groups({ userID }: { userID: string }) {
     finally { setBusy(false); }
   }
 
-  async function open(group: Group) {
-    const items = await groupRequest(`/${group.id}/members`);
-    if (selected?.id !== group.id) setInvite(null);
-    setMembers(items);
-    setSelected(group);
-  }
-
-  async function openWorkspace(group: Group) {
-    setOpening(true);
-    try {
-      await open(group);
-      requestAnimationFrame(() => document.getElementById("detail-kelompok")?.focus());
-    } finally {
-      setOpening(false);
-    }
-  }
-
   function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -94,18 +44,7 @@ export default function Groups({ userID }: { userID: string }) {
       setGroups((items) => [group, ...(items ?? [])]);
       form.reset();
       setComposerOpen(false);
-      await openWorkspace(group);
-    });
-  }
-
-  function createInvite(event: FormEvent<HTMLFormElement>, group: Group) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    void run(async () => {
-      const result = await groupRequest(`/${group.id}/invites`, "POST", { maxUses: Number(data.get("uses")) });
-      const link = new URL("/gabung", window.location.origin);
-      link.hash = result.code;
-      setInvite({ code: result.code, link: link.toString() });
+      router.push(`/kelompok/${group.id}`);
     });
   }
 
@@ -140,9 +79,8 @@ export default function Groups({ userID }: { userID: string }) {
       {groups === null ? <SkeletonRows label="Memuat kelompok…" rows={3} /> : groups.length === 0 ? <p className="dashboard-glass text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
         <ul className="divide-y divide-line border-y border-line">
           {groups.map((group) => <li key={group.id}>
-            <button type="button" disabled={busy} aria-pressed={selected?.id === group.id}
-              className="dashboard-group-row flex min-h-[4.75rem] w-full items-center gap-3 px-2 py-3 text-left hover:bg-white/70 aria-pressed:bg-attention-soft/70 disabled:cursor-wait sm:px-3"
-              onClick={() => void run(() => openWorkspace(group))}>
+            <Link href={`/kelompok/${group.id}`}
+              className="dashboard-group-row flex min-h-[4.75rem] w-full items-center gap-3 px-2 py-3 text-left hover:bg-white/70 sm:px-3">
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-brand">
                 <DashboardIcon name={group.type === "KAS" ? "cash" : "group"} />
               </span>
@@ -151,75 +89,9 @@ export default function Groups({ userID }: { userID: string }) {
                 <span className="mt-0.5 block text-sm text-muted">{group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}</span>
               </span>
               <DashboardIcon name="arrow" className="size-5 shrink-0 text-attention" />
-            </button>
+            </Link>
           </li>)}
         </ul>
-      )}
-      {opening && <SkeletonRows label="Memuat detail kelompok…" rows={2} />}
-      {selected && (
-        <section className="min-w-0 space-y-5 rounded-2xl border border-line bg-white/80 p-4 sm:p-6" aria-labelledby="detail-kelompok">
-          <h3 id="detail-kelompok" tabIndex={-1} className="break-words text-2xl font-bold tracking-tight">{selected.name}</h3>
-          {selected.role === "OWNER" && (
-            <details className="dashboard-glass">
-              <summary className="min-h-11 py-2 font-semibold">Pengaturan dan undangan</summary>
-              <div className="space-y-3">
-                <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => {
-                  event.preventDefault();
-                  const name = new FormData(event.currentTarget).get("name");
-                  void run(async () => {
-                    await groupRequest(`/${selected.id}`, "PATCH", { name });
-                    const updated = await groupRequest(`/${selected.id}`);
-                    setSelected(updated);
-                    setGroups((items) => items?.map((item) => item.id === updated.id ? updated : item) ?? []);
-                  });
-                }}>
-                  <input key={selected.id} aria-label="Nama baru kelompok" name="name" placeholder="Nama kelompok" defaultValue={selected.name} required maxLength={100} className={control} />
-                  <button disabled={busy} className={button}>Simpan nama</button>
-                </form>
-                <form onSubmit={(event) => createInvite(event, selected)} className="flex flex-wrap items-end gap-2">
-                  <label className="grid gap-1">Kuota undangan<input name="uses" type="number" min={1} max={100} defaultValue={10} required className={control} /></label>
-                  <button disabled={busy} className={button}>Buat undangan</button>
-                </form>
-                {invite && <div className="space-y-2">
-                  <label className="grid gap-1">Tautan undangan (berlaku 7 hari)
-                    <input readOnly value={invite.link} className={control} onFocus={(event) => event.currentTarget.select()} />
-                  </label>
-                  <p className="break-all">Kode <code>{invite.code}</code></p>
-                  <a className="inline-flex min-h-11 items-center underline" href={`https://wa.me/?text=${encodeURIComponent(invite.link)}`} target="_blank" rel="noreferrer">Bagikan lewat WhatsApp</a>
-                </div>}
-              </div>
-            </details>
-          )}
-          {selected.type === "ARISAN" && (
-            <Arisan key={selected.id} group={selected} members={members} userID={userID} request={groupRequest} />
-          )}
-          <Reports key={selected.id} group={selected} request={groupRequest} />
-          <h4 className="font-medium">Anggota</h4>
-          <ul className="space-y-2">
-            {members.map((member) => <li key={member.id} className="flex flex-wrap items-center gap-2">
-              <span>{member.name} · {roles[member.role]}</span>
-              {member.role !== "OWNER" && selected.role === "OWNER" &&
-                <button type="button" className={button} disabled={busy} onClick={() => void run(async () => {
-                  await groupRequest(`/${selected.id}/members/${member.id}`, "PATCH", {
-                    role: member.role === "MEMBER" ? "TREASURER" : "MEMBER",
-                  });
-                  await open(selected);
-                })}>{member.role === "MEMBER" ? "Jadikan bendahara" : "Jadikan anggota"}</button>}
-              {member.role !== "OWNER" && (selected.role === "OWNER" || member.id === userID) &&
-                <button type="button" className={button} disabled={busy} onClick={() => {
-                  if (!window.confirm(member.id === userID ? "Keluar dari kelompok?" : `Keluarkan ${member.name}?`)) return;
-                  void run(async () => {
-                    await groupRequest(`/${selected.id}/members/${member.id}`, "DELETE");
-                    if (member.id === userID) {
-                      setGroups((items) => items?.filter((item) => item.id !== selected.id) ?? []);
-                      setSelected(null);
-                      setInvite(null);
-                    } else await open(selected);
-                  });
-                }}>{member.id === userID ? "Keluar dari kelompok" : "Keluarkan"}</button>}
-            </li>)}
-          </ul>
-        </section>
       )}
     </section>
   );

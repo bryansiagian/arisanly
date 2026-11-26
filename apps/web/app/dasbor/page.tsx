@@ -41,7 +41,7 @@ export default async function DashboardPage() {
         </div>
         <div className="dashboard-workspace mt-5 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-9">
           <Reminders />
-          <Groups userID={user.id} />
+          <Groups />
         </div>
       </main>
     </div>
