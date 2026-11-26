@@ -34,8 +34,8 @@ export async function groupRequest(path = "", method = "GET", payload?: object, 
   return response.status === 204 ? undefined : response.json();
 }
 
-const control = "min-h-11 rounded-lg border border-stone-400 bg-white px-3";
-const button = "min-h-11 rounded-lg border border-stone-400 px-3 disabled:opacity-50";
+const control = "field";
+const button = "action";
 
 export default function Groups({ userID }: { userID: string }) {
   const [groups, setGroups] = useState<Group[] | null>(null);
@@ -94,28 +94,39 @@ export default function Groups({ userID }: { userID: string }) {
   }
 
   return (
-    <section className="mt-8 space-y-5" aria-labelledby="groups-heading">
-      <h2 id="groups-heading" className="text-xl font-semibold">Kelompok saya</h2>
-      <form onSubmit={create} className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-        <input aria-label="Nama kelompok" name="name" placeholder="Nama kelompok" required maxLength={100} className={control} />
-        <select aria-label="Jenis kelompok" name="type" className={control}><option value="ARISAN">Arisan</option><option value="KAS">Kas</option></select>
-        <button disabled={busy || groups === null} className={button}>Buat kelompok</button>
-      </form>
-      <a href="/gabung" className="inline-flex min-h-11 items-center underline">Gabung dengan kode</a>
-      {error && <p role="alert" className="text-red-800">{error}</p>}
-      {groups === null ? <p role="status">Memuat kelompok…</p> : groups.length === 0 ? <p>Belum ada kelompok.</p> : (
-        <ul className="space-y-2">
+    <section className="space-y-4" aria-labelledby="groups-heading">
+      <h2 id="groups-heading" className="text-2xl font-bold tracking-tight">Kelompok saya</h2>
+      <div className="panel">
+        <form onSubmit={create} className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <label className="grid gap-1 text-sm font-semibold">
+            Nama kelompok
+            <input name="name" required maxLength={100} className={control} />
+          </label>
+          <label className="grid gap-1 text-sm font-semibold">
+            Jenis kelompok
+            <select name="type" className={control}><option value="ARISAN">Arisan</option><option value="KAS">Kas</option></select>
+          </label>
+          <button disabled={busy || groups === null} className="action-primary">Buat kelompok</button>
+        </form>
+        <a href="/gabung" className="mt-3 inline-flex min-h-11 items-center text-brand underline">Gabung dengan kode</a>
+      </div>
+      {error && <p role="alert" className="notice-error">{error}</p>}
+      {groups === null ? <p role="status">Memuat kelompok…</p> : groups.length === 0 ? <p className="panel text-muted">Belum ada kelompok. Buat kelompok atau gunakan kode undangan.</p> : (
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group) => <li key={group.id}>
             <button type="button" disabled={busy} aria-pressed={selected?.id === group.id}
-              className={`${button} w-full text-left`} onClick={() => void run(() => open(group))}>
-              {group.name} · {group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}
+              className="action min-h-16 w-full justify-start gap-2 text-left aria-pressed:border-brand aria-pressed:bg-canvas" onClick={() => void run(() => open(group))}>
+              <span className="min-w-0 break-words">
+                <span className="block font-bold">{group.name}</span>
+                <span className="block text-xs font-medium text-muted">{group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}</span>
+              </span>
             </button>
           </li>)}
         </ul>
       )}
       {selected && (
-        <section className="space-y-3 rounded-lg border border-stone-300 p-4">
-          <h3 className="font-semibold">{selected.name}</h3>
+        <section className="panel space-y-5">
+          <h3 className="break-words text-xl font-bold">{selected.name}</h3>
           {selected.role === "OWNER" && (
             <>
               <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => {

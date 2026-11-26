@@ -1,5 +1,7 @@
 "use client";
 
+import StatusLabel from "../status-label";
+
 import { useEffect, useState } from "react";
 
 type Reminder = {
@@ -52,19 +54,22 @@ export default function Reminders() {
 
   const unread = items?.filter((item) => !item.read).length;
   return (
-    <details className="my-6 rounded-lg border border-stone-300 px-4">
+    <details className="my-5 rounded-2xl border border-line bg-white px-4 shadow-sm">
       <summary className="min-h-11 cursor-pointer py-2 font-semibold">
         Pengingat iuran {unread ? <span className="font-normal">({unread} belum dibaca)</span> : null}
       </summary>
       <div className="space-y-2 pb-3">
-        {error && <p role="alert" className="text-red-800">Pengingat gagal dimuat atau diperbarui.</p>}
+        {error && <p role="alert" className="notice-error">Pengingat gagal dimuat atau diperbarui.</p>}
         {!items && !error && <p role="status">Memuat pengingat…</p>}
         {items?.length === 0 && <p>Belum ada pengingat iuran.</p>}
         <button type="button" onClick={() => void refresh()} className="min-h-11 underline">Muat ulang pengingat</button>
         <ul aria-live="polite" className="space-y-2">
           {items?.map((item) => (
             <li key={item.id} className="break-words border-t border-stone-200 pt-2">
-              <p className={item.read ? "" : "font-semibold"}>{item.groupName} · {labels[item.stage]}</p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className={item.read ? "" : "font-semibold"}>{item.groupName}</p>
+                <StatusLabel status={item.stage}>{labels[item.stage]}</StatusLabel>
+              </div>
               <p>{currency.format(BigInt(item.amount))} · {item.dueDate}</p>
               {item.read ? <p className="text-sm text-stone-600">Sudah dibaca</p> :
                 <button type="button" disabled={pending !== ""} onClick={() => void markRead(item.id)}

@@ -21,12 +21,12 @@ export default function Logout() {
   }
 
   return (
-    <div className="mt-6">
+    <div>
       <button type="button" onClick={logout} disabled={pending}
-        className="min-h-11 rounded-lg border border-stone-400 px-4 disabled:opacity-60">
+        className="action">
         {pending ? "Memproses…" : "Keluar"}
       </button>
-      {error && <p role="alert" className="mt-2 text-red-800">Gagal keluar. Coba lagi.</p>}
+      {error && <p role="alert" className="notice-error mt-2">Gagal keluar. Coba lagi.</p>}
     </div>
   );
 }

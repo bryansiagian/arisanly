@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Brand from "../brand";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
@@ -38,16 +39,20 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-6 py-12">
-      <h1 className="text-3xl font-semibold">Gabung kelompok</h1>
-      <form onSubmit={submit} className="grid gap-3">
-        <label className="grid gap-1">Kode undangan (opsional jika memakai tautan)
-          <input name="code" maxLength={32} autoComplete="off" className="min-h-11 rounded-lg border border-stone-400 bg-white px-3" />
-        </label>
-        <button disabled={pending} className="min-h-11 rounded-lg bg-stone-900 px-4 text-white disabled:opacity-50">Gabung</button>
-      </form>
-      {notice && <p role="alert">{notice}</p>}
-      <Link href="/masuk" target="_blank" rel="noopener" className="inline-flex min-h-11 items-center underline">Masuk di tab baru</Link>
+    <main className="mx-auto max-w-lg space-y-5 px-5 py-10">
+      <Brand />
+      <div className="panel space-y-4">
+        <h1 className="text-3xl font-bold tracking-tight">Gabung kelompok</h1>
+        <form onSubmit={submit} className="grid gap-3">
+          <label className="grid gap-1">Kode undangan
+            <input name="code" maxLength={32} autoComplete="off" aria-describedby="invite-help" className="field" />
+          </label>
+          <p id="invite-help" className="text-sm text-muted">Jika membuka tautan undangan, kamu bisa langsung memilih Gabung.</p>
+          <button disabled={pending} className="action-primary">{pending ? "Memproses…" : "Gabung"}</button>
+        </form>
+        {notice && <p role="alert" className="notice-error">{notice}</p>}
+        <Link href="/masuk" target="_blank" rel="noopener" className="inline-flex min-h-11 items-center underline">Masuk di tab baru</Link>
+      </div>
     </main>
   );
 }
