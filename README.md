@@ -8,7 +8,7 @@ Arisanly is a web app for managing **arisan** (rotating savings groups) and **ka
 >
 > ⚠️ **Arisanly never holds or moves money.** Members pay outside the app (cash, transfer, QRIS). Arisanly only records and verifies.
 
-- 🔗 **Live demo:** coming soon
+- **Live demo:** awaiting a public deployment. [Deployment instructions](deploy/README.md)
 - 📄 **Product spec:** [PRD.md](./PRD.md)
 
 ---
@@ -249,13 +249,30 @@ Each member can open the reminder inbox on their dashboard, refresh it, and mark
 - [x] **M7** Reminders and UX polish
 - [ ] **M8** Public deployment and pilot with a real group
 
-## Screenshots
+## Deployment
 
-Coming soon.
+The HTTPS release profile is documented in [the deployment guide](deploy/README.md). The demo seeder creates two completed Arisan rounds and an example Kas ledger using synthetic data.
+
+```mermaid
+flowchart LR
+    Browser -->|HTTPS| Caddy
+    Caddy --> Next["Next.js"]
+    Next --> API["Go API"]
+    API --> PG["PostgreSQL"]
+    API --> Redis
+    Redis --> Worker["Asynq worker"]
+    Worker --> PG
+```
 
 ## Pilot Results
 
-To be filled in after a real group completes at least two rounds.
+Public deployment and the real-group pilot are pending. Synthetic demo results are tracked separately. Update this section with aggregate observations after one consenting group completes at least two real rounds.
+
+| Measure | How to record it | Result |
+|---|---|---|
+| Completed rounds | Count closed rounds from the group's audit history | Pending |
+| First-time setup | Time at least five first-time treasurers from opening the dashboard to starting a cycle. Record the number under three minutes. | Pending |
+| Operational feedback | Summarize where participants needed help with joining, claiming, confirming, or recording a payout. | Pending |
 
 ## Disclaimer
 

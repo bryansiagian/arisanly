@@ -1,0 +1,42 @@
+services:
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    ports: !reset []
+    restart: unless-stopped
+
+  api:
+    ports: !reset []
+    environment:
+      JWT_ACCESS_SECRET: ${ARISANLY_JWT_SECRET:?Set a dedicated production signing secret}
+      AUTH_COOKIE_SECURE: "true"
+    restart: unless-stopped
+
+  worker:
+    restart: unless-stopped
+
+  web:
+    ports: !reset []
+    restart: unless-stopped
+
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      ARISANLY_DOMAIN: ${ARISANLY_DOMAIN:?Set the DNS hostname}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
