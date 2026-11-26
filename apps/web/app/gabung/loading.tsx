@@ -1,5 +1,6 @@
-import { PageSkeleton } from "../skeleton";
+import { SkeletonRows } from "../skeleton";
+import JoinShell from "./join-shell";
 
 export default function Loading() {
-  return <PageSkeleton kind="form" />;
+  return <JoinShell><SkeletonRows label="Memuat halaman gabung…" /></JoinShell>;
 }
