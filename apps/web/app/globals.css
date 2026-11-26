@@ -138,6 +138,7 @@
     @apply text-muted;
   }
   .dashboard-nav {
+    @apply relative z-30;
     background: linear-gradient(110deg, rgb(255 255 255 / .76), rgb(250 247 241 / .82));
     backdrop-filter: blur(14px);
   }
@@ -176,6 +177,23 @@
   .group-type-option {
     @apply flex min-h-20 cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-white/80 p-3 hover:border-attention/60;
     @apply has-checked:border-attention has-checked:bg-attention-soft/75 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-attention;
+    @apply motion-safe:transition-colors;
+  }
+}
+
+@layer components {
+  .account-menu-trigger {
+    @apply flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line bg-white/80 px-2 text-sm font-semibold hover:border-attention/60 sm:pr-3;
+    @apply motion-safe:transition-colors;
+  }
+  .account-menu-trigger::-webkit-details-marker { display: none; }
+  .account-menu-panel {
+    background: linear-gradient(135deg, rgb(255 255 255 / .97), rgb(250 244 230 / .95));
+    box-shadow: 0 16px 45px rgb(44 34 19 / .16);
+    backdrop-filter: blur(15px);
+  }
+  .account-menu-item {
+    @apply flex min-h-11 items-center gap-2.5 rounded-lg px-3 text-sm font-medium hover:bg-attention-soft/70 disabled:opacity-60;
     @apply motion-safe:transition-colors;
   }
 }

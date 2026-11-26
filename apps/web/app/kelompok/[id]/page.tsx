@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import AccountMenu from "../../dasbor/account-menu";
 import Brand from "../../brand";
 import { SkeletonRows } from "../../skeleton";
 import GroupWorkspace from "../../dasbor/group-workspace";
@@ -22,17 +23,18 @@ export default async function GroupPage({ params }: { params: Promise<{ id: stri
   if (!session.ok) throw new Error("Gagal memeriksa sesi");
   if (detail.status === 404 || detail.status === 403) notFound();
   if (!detail.ok) throw new Error("Gagal memuat kelompok");
-  const [{ id: userID }, group]: [{ id: string }, Group] = await Promise.all([session.json(), detail.json()]);
+  const [user, group]: [{ id: string; name: string; email: string }, Group] = await Promise.all([session.json(), detail.json()]);
 
   return (
     <div className="dashboard mx-auto max-w-5xl px-4 sm:px-8">
-      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
+      <header className="dashboard-nav flex flex-wrap items-center justify-between gap-2 py-3">
         <Brand />
-        <Link href="/dasbor#kelompok" className="dashboard-link text-sm">Kembali ke kelompok</Link>
+        <AccountMenu name={user.name} email={user.email} />
       </header>
       <main className="py-6 sm:py-9">
+        <Link href="/dasbor#kelompok" className="dashboard-link mb-2 text-sm">Kembali ke kelompok</Link>
         <Suspense fallback={<SkeletonRows label="Memuat anggota dan aktivitas…" />}>
-          <Workspace group={group} headers={headers} userID={userID} />
+          <Workspace group={group} headers={headers} userID={user.id} />
         </Suspense>
       </main>
     </div>

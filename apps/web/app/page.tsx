@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-[1440px] px-5 sm:px-9 lg:px-14">
       <div className="flex flex-col lg:min-h-svh">
-        <header className="flex items-center justify-between gap-3 border-b border-line py-4">
+        <header className="flex items-center justify-between gap-3 py-4">
           <Brand />
           <nav aria-label="Navigasi utama" className="flex items-center gap-5">
             <a href="#cara-kerja" className="hidden min-h-11 items-center text-sm font-semibold sm:inline-flex">Cara kerja</a>

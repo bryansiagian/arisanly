@@ -8,4 +8,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: "/dasbor/:path*" };
+export const config = { matcher: ["/dasbor/:path*", "/profil"] };

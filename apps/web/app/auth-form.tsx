@@ -136,7 +136,7 @@ export default function AuthForm({ register = false, registered = false }: {
 }
 
 
-function PasswordField({
+export function PasswordField({
   id, name, label, placeholder, autoComplete, minLength, hint, invalid, inputRef, onChange,
 }: {
   id: string;
@@ -148,7 +148,7 @@ function PasswordField({
   hint?: string;
   invalid?: boolean;
   inputRef?: Ref<HTMLInputElement>;
-  onChange: () => void;
+  onChange?: () => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const hintID = `${id}-hint`;

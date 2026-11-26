@@ -52,7 +52,7 @@ export default function GroupWorkspace({ group, initialMembers, userID }: {
         <h1 className="relative mt-2 break-words text-4xl font-bold tracking-[-.055em] sm:text-6xl">{selected.name}</h1>
         <p className="relative mt-2 text-sm text-muted">{members.length} anggota</p>
       </header>
-      <nav aria-label="Bagian kelompok" className="flex flex-wrap gap-x-5 border-b border-line">
+      <nav aria-label="Bagian kelompok" className="flex flex-wrap gap-x-5">
         {selected.type === "ARISAN" && <a href="#putaran" className="dashboard-link text-sm">Putaran</a>}
         <a href="#laporan" className="dashboard-link text-sm">{selected.type === "KAS" ? "Kas dan laporan" : "Laporan"}</a>
         <a href="#anggota" className="dashboard-link text-sm">Anggota</a>

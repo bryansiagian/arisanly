@@ -66,7 +66,7 @@ func (h *Handler) Routes(r chi.Router) {
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Cache-Control", "no-store")
-			if r.Method == http.MethodPost {
+			if r.Method == http.MethodPost || r.Method == http.MethodPatch {
 				mediaType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 				if mediaType != "application/json" {
 					fail(w, http.StatusUnsupportedMediaType, "invalid_content_type")
@@ -81,6 +81,7 @@ func (h *Handler) Routes(r chi.Router) {
 	r.Post("/refresh", h.refresh)
 	r.Post("/logout", h.logout)
 	r.With(h.RequireUser).Get("/me", h.me)
+	r.With(h.RequireUser).Patch("/me", h.limitHashing(h.updateProfile))
 }
 
 func (h *Handler) limitHashing(next http.HandlerFunc) http.HandlerFunc {

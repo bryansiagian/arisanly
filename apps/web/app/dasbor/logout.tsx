@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import DashboardIcon from "./dashboard-icon";
 import { postAuth } from "../auth-form";
 
 export default function Logout() {
@@ -23,7 +24,8 @@ export default function Logout() {
   return (
     <div>
       <button type="button" onClick={logout} disabled={pending}
-        className="action">
+        className="account-menu-item w-full text-danger">
+        <DashboardIcon name="exit" className="size-4" />
         {pending ? "Memproses…" : "Keluar"}
       </button>
       {error && <p role="alert" className="notice-error mt-2">Gagal keluar. Coba lagi.</p>}
