@@ -1,7 +1,7 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { useState } from "react";
+import type { FormEvent, Ref } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 const errors: Record<string, string> = {
@@ -24,13 +24,30 @@ export default function AuthForm({ register = false, registered = false }: {
   registered?: boolean;
 }) {
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const emailField = useRef<HTMLInputElement>(null);
+  const confirmationField = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState(false);
   const heading = register ? "Buat akun" : "Masuk";
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setInvalidEmail(emailField.current?.validity.typeMismatch ?? false);
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [email]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    if (register && form.get("password") !== form.get("passwordConfirmation")) {
+      setError("");
+      setPasswordMismatch(true);
+      confirmationField.current?.focus();
+      return;
+    }
     const payload = {
       email: form.get("email"),
       password: form.get("password"),
@@ -68,40 +85,41 @@ export default function AuthForm({ register = false, registered = false }: {
         {register && (
           <label className="grid gap-2 text-sm font-semibold">
             Nama
-            <input name="name" autoComplete="name" required maxLength={100} className="account-field" />
+            <input name="name" autoComplete="name" placeholder="Contoh: Rani Putri" required maxLength={100} className="account-field" />
           </label>
         )}
-        <label className="grid gap-2 text-sm font-semibold">
-          Email
-          <input name="email" type="email" autoComplete={register ? "email" : "username"} required maxLength={254}
-            className="account-field" />
-        </label>
         <div className="grid gap-2">
-          <label htmlFor="account-password" className="text-sm font-semibold">Kata sandi</label>
-          <div className="account-password">
-            <input id="account-password" name="password" type={showPassword ? "text" : "password"}
-              aria-describedby={register ? "password-help" : undefined}
-              autoComplete={register ? "new-password" : "current-password"}
-              required minLength={register ? 12 : undefined} maxLength={128} />
-            <button type="button" aria-controls="account-password"
-              aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-              onClick={() => setShowPassword((visible) => !visible)}
-              className="account-password-toggle">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" className="size-5">
-                {showPassword ? (
-                  <path d="M3 3l18 18M10.6 10.6a2 2 0 1 0 2.8 2.8M9.5 5.5A10 10 0 0 1 12 5c5.2 0 8.6 4.3 10 7a16 16 0 0 1-3.1 3.8M6 6.5A16 16 0 0 0 2 12c1.4 2.7 4.8 7 10 7a10 10 0 0 0 4.5-1.1" />
-                ) : (
-                  <>
-                    <path d="M2 12c1.4-2.7 4.8-7 10-7s8.6 4.3 10 7c-1.4 2.7-4.8 7-10 7S3.4 14.7 2 12Z" />
-                    <circle cx="12" cy="12" r="2.5" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
-          {register && <p id="password-help" className="text-sm text-muted">Gunakan minimal 12 karakter.</p>}
+          <label htmlFor="account-email" className="text-sm font-semibold">Email</label>
+          <input ref={emailField} id="account-email" name="email" type="email" value={email}
+            onChange={(event) => {
+              setEmail(event.currentTarget.value);
+              setInvalidEmail(false);
+            }}
+            onInvalid={(event) => setInvalidEmail(event.currentTarget.validity.typeMismatch)}
+            autoComplete={register ? "email" : "username"} placeholder="nama@contoh.com" required maxLength={254}
+            aria-invalid={invalidEmail || undefined} aria-describedby={invalidEmail ? "email-format-help" : undefined}
+            className="account-field" />
+          <p id="email-format-help" aria-live="polite" className="min-h-5 text-sm leading-5 text-danger">
+            {invalidEmail ? "Format email belum valid. Contoh: nama@contoh.com." : ""}
+          </p>
         </div>
+        <PasswordField
+          id="account-password" name="password" label="Kata sandi"
+          placeholder={register ? "Buat kata sandi" : "Masukkan kata sandi"}
+          autoComplete={register ? "new-password" : "current-password"}
+          minLength={register ? 12 : undefined}
+          onChange={() => setPasswordMismatch(false)}
+          hint={register ? "Gunakan minimal 12 karakter." : undefined}
+        />
+        {register && (
+          <PasswordField
+            id="account-password-confirmation" name="passwordConfirmation" label="Konfirmasi kata sandi"
+            placeholder="Ketik ulang kata sandi" autoComplete="new-password"
+            inputRef={confirmationField} invalid={passwordMismatch}
+            hint={passwordMismatch ? "Konfirmasi kata sandi belum sama." : undefined}
+            onChange={() => setPasswordMismatch(false)}
+          />
+        )}
         {error && <p role="alert" className="notice-error">{error}</p>}
         <button disabled={pending} className="action-gold account-submit">
           {pending ? "Memproses…" : heading}
@@ -114,5 +132,53 @@ export default function AuthForm({ register = false, registered = false }: {
         </Link>
       </div>
     </>
+  );
+}
+
+
+function PasswordField({
+  id, name, label, placeholder, autoComplete, minLength, hint, invalid, inputRef, onChange,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  placeholder: string;
+  autoComplete: "current-password" | "new-password";
+  minLength?: number;
+  hint?: string;
+  invalid?: boolean;
+  inputRef?: Ref<HTMLInputElement>;
+  onChange: () => void;
+}) {
+  const [showPassword, setShowPassword] = useState(false);
+  const hintID = `${id}-hint`;
+  return (
+    <div className="grid gap-2">
+      <label htmlFor={id} className="text-sm font-semibold">{label}</label>
+      <div className="account-password" data-invalid={invalid || undefined}>
+        <input ref={inputRef} id={id} name={name} type={showPassword ? "text" : "password"}
+          aria-describedby={hint ? hintID : undefined} aria-invalid={invalid || undefined}
+          autoComplete={autoComplete} placeholder={placeholder}
+          required minLength={minLength} maxLength={128} onChange={onChange} />
+        <button type="button" aria-controls={id}
+          aria-label={`${showPassword ? "Sembunyikan" : "Tampilkan"} ${label.toLowerCase()}`}
+          onClick={() => setShowPassword((visible) => !visible)}
+          className="account-password-toggle">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" className="size-5">
+            {showPassword ? (
+              <path d="M3 3l18 18M10.6 10.6a2 2 0 1 0 2.8 2.8M9.5 5.5A10 10 0 0 1 12 5c5.2 0 8.6 4.3 10 7a16 16 0 0 1-3.1 3.8M6 6.5A16 16 0 0 0 2 12c1.4 2.7 4.8 7 10 7a10 10 0 0 0 4.5-1.1" />
+            ) : (
+              <>
+                <path d="M2 12c1.4-2.7 4.8-7 10-7s8.6 4.3 10 7c-1.4 2.7-4.8 7-10 7S3.4 14.7 2 12Z" />
+                <circle cx="12" cy="12" r="2.5" />
+              </>
+            )}
+          </svg>
+        </button>
+      </div>
+      {hint && <p id={hintID} role={invalid ? "alert" : undefined}
+        className={invalid ? "text-sm text-danger" : "text-sm text-muted"}>{hint}</p>}
+    </div>
   );
 }
