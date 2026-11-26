@@ -57,7 +57,7 @@ export default function AuthForm({ register = false, registered = false }: {
   return (
     <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-5 px-5 py-8">
       <Brand />
-      <div className="panel space-y-5">
+      <div className="panel space-y-5 border-t-2 border-t-gold">
         <h1 className="text-3xl font-bold tracking-tight">{heading}</h1>
         {registered && <p role="status" className="rounded-lg bg-success-soft p-3 text-brand">Akun sudah dibuat. Silakan masuk.</p>}
         <form onSubmit={submit} className="grid gap-4">
