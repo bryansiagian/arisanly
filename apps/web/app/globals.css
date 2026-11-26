@@ -101,3 +101,31 @@
 @media (prefers-reduced-motion: no-preference) {
   .skeleton { animation: skeleton-sweep 1.35s ease-in-out infinite; }
 }
+
+@layer components {
+  .account-field, .account-password {
+    @apply min-h-14 rounded-xl border border-[#aea498] bg-white/75 text-base font-normal text-ink;
+  }
+  .account-field {
+    @apply w-full px-4;
+  }
+  .account-password {
+    @apply flex items-center gap-1 p-1;
+  }
+  .account-password input {
+    @apply min-h-11 w-full flex-1 rounded-md bg-transparent px-3;
+  }
+  .account-password-toggle {
+    @apply min-h-11 shrink-0 rounded-lg bg-canvas px-3 text-xs font-semibold text-brand-deep hover:bg-success-soft motion-safe:transition-colors;
+  }
+  .account-submit {
+    @apply mt-1 min-h-14 w-full rounded-xl text-base;
+    box-shadow: 0 8px 20px rgb(136 80 10 / .16);
+  }
+  .account-submit:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+  .account-register {
+    @apply inline-flex min-h-11 items-center rounded-xl border border-attention/35 bg-attention-soft px-4 text-sm font-bold text-attention hover:border-attention hover:bg-white motion-safe:transition-colors;
+  }
+}
