@@ -77,3 +77,40 @@ jobs:
         run: docker compose logs
       - if: always()
         run: docker compose down --volumes
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Start HTTPS stack
+        run: |
+          umask 077
+          cp deploy/.env.example .env.production
+          cat >> .env.production <<ENV
+          ARISANLY_DOMAIN=localhost
+          ARISANLY_JWT_SECRET=$(openssl rand -hex 32)
+          POSTGRES_PASSWORD=$(openssl rand -hex 24)
+          ENV
+          compose=(docker compose --env-file .env.production -f docker-compose.yml -f deploy/compose.yml)
+          "${compose[@]}" config --quiet
+          "${compose[@]}" up --build --detach --wait --wait-timeout 120
+          for attempt in {1..30}; do
+            if "${compose[@]}" cp proxy:/data/caddy/pki/authorities/local/root.crt /tmp/arisanly-root.crt; then break; fi
+            sleep 1
+          done
+          test -s /tmp/arisanly-root.crt
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --cacert /tmp/arisanly-root.crt https://localhost/readyz
+      - name: Verify public routes and demo workflow
+        env:
+          ARISANLY_WEB_URL: https://localhost
+          NODE_EXTRA_CA_CERTS: /tmp/arisanly-root.crt
+        run: |
+          node scripts/release-smoke.mjs
+          node scripts/seed-demo.mjs
+      - if: failure()
+        run: docker compose --env-file .env.production -f docker-compose.yml -f deploy/compose.yml logs
+      - if: always()
+        run: docker compose --env-file .env.production -f docker-compose.yml -f deploy/compose.yml down --volumes
