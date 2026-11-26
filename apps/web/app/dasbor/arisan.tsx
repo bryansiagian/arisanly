@@ -101,7 +101,7 @@ export default function Arisan({ group, members, userID, request }: {
       <h4 className="text-lg font-semibold">Putaran arisan</h4>
       {error && <p role="alert" className="notice-error">{error}</p>}
       {!history && !error && <p role="status">Memuat putaran…</p>}
-      {history?.cycle && <p className="rounded-xl bg-emerald-50 p-3 text-brand-deep">Saldo dana <strong className="ml-1 tabular-nums">{currency.format(BigInt(history.fundBalance))}</strong></p>}
+      {history?.cycle && <p className="rounded-xl border border-line bg-white p-3 text-ink">Saldo dana <strong className="ml-1 tabular-nums">{currency.format(BigInt(history.fundBalance))}</strong></p>}
       {history && !history.cycle && <p>Belum ada siklus arisan.</p>}
       {history?.cycle?.closed && <p>Siklus terakhir sudah selesai.</p>}
       {history && (!history.cycle || history.cycle.closed) && owner && (

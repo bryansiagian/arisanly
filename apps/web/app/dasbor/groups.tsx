@@ -115,7 +115,7 @@ export default function Groups({ userID }: { userID: string }) {
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group) => <li key={group.id}>
             <button type="button" disabled={busy} aria-pressed={selected?.id === group.id}
-              className="action min-h-16 w-full justify-start gap-2 text-left aria-pressed:border-brand aria-pressed:bg-emerald-50" onClick={() => void run(() => open(group))}>
+              className="action min-h-16 w-full justify-start gap-2 text-left aria-pressed:border-brand aria-pressed:bg-canvas" onClick={() => void run(() => open(group))}>
               <span className="min-w-0 break-words">
                 <span className="block font-bold">{group.name}</span>
                 <span className="block text-xs font-medium text-muted">{group.type === "KAS" ? "Kas" : "Arisan"} · {roles[group.role]}</span>

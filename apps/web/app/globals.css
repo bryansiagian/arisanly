@@ -3,10 +3,10 @@
 @theme {
   --color-brand: #155d4b;
   --color-brand-deep: #104638;
-  --color-ink: #152b27;
-  --color-muted: #4e625b;
-  --color-canvas: #f4f7f2;
-  --color-line: #d7e2da;
+  --color-ink: #232b28;
+  --color-muted: #565e59;
+  --color-canvas: #faf7f1;
+  --color-line: #e4dcd0;
 }
 
 @layer base {
@@ -23,7 +23,7 @@
   .panel { @apply min-w-0 rounded-2xl border border-line bg-white p-4 shadow-sm sm:p-6; }
   .field { @apply min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-base; }
   .action {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-white px-4 text-sm font-semibold hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-white px-4 text-sm font-semibold hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;
   }
   .action-primary {
     @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors;

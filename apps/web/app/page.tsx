@@ -25,8 +25,8 @@ export default function Home() {
             </p>
             <Link href="/daftar" className="action-primary mt-6">Buat akun</Link>
           </div>
-          <figure className="min-w-0 rounded-3xl bg-brand-deep p-5 text-white sm:p-8">
-            <figcaption className="text-sm font-semibold text-emerald-100">Contoh putaran arisan</figcaption>
+          <figure className="min-w-0 rounded-3xl border border-line bg-[#f1e9db] p-5 text-ink sm:p-8">
+            <figcaption className="text-sm font-semibold text-muted">Contoh putaran arisan</figcaption>
             <div className="mt-4 rounded-2xl bg-white p-4 text-ink sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div><p className="text-sm text-muted">Iuran terkumpul</p><p className="text-3xl font-bold tabular-nums">Rp75.000</p></div>

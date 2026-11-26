@@ -24,7 +24,7 @@ export default async function DashboardPage() {
         <Logout />
       </header>
       <main id="konten" className="py-6 sm:py-9">
-        <div className="panel border-emerald-200 bg-emerald-50">
+        <div className="panel">
           <h1 className="break-words text-3xl font-bold tracking-tight">Halo, {user.name}</h1>
           <p className="mt-1 break-all text-sm text-muted">{user.email}</p>
         </div>
