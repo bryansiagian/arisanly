@@ -3,7 +3,6 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import Link from "next/link";
-import Brand from "./brand";
 
 const errors: Record<string, string> = {
   invalid_input: "Periksa nama, email, dan kata sandi. Gunakan 12–128 byte untuk kata sandi.",
@@ -54,20 +53,22 @@ export default function AuthForm({ register = false, registered = false }: {
     }
   }
 
-  const form = (
+  return (
     <>
       <header className="mb-6">
-        <h1 className={register ? "text-3xl font-bold tracking-tight" : "text-5xl font-bold tracking-[-.065em] sm:text-6xl"}>
-          {heading}<span aria-hidden="true" className={register ? "hidden" : "text-gold"}>.</span>
+        <h1 className="text-balance text-5xl font-bold tracking-[-.065em] sm:text-6xl">
+          {heading}<span aria-hidden="true" className="text-gold">.</span>
         </h1>
-        {!register && <p className="mt-3 text-muted">Masuk untuk membuka dasbor kelompokmu.</p>}
+        <p className="mt-3 text-muted">
+          {register ? "Gunakan akun ini untuk membuat kelompok atau menerima undangan." : "Masuk untuk membuka dasbor kelompokmu."}
+        </p>
       </header>
       {registered && <p role="status" className="mb-4 rounded-lg bg-success-soft p-3 text-brand">Akun sudah dibuat. Silakan masuk.</p>}
       <form onSubmit={submit} className="grid gap-4" aria-busy={pending}>
         {register && (
-          <label className="grid gap-1 font-semibold">
+          <label className="grid gap-2 text-sm font-semibold">
             Nama
-            <input name="name" autoComplete="name" required maxLength={100} className="field font-normal" />
+            <input name="name" autoComplete="name" required maxLength={100} className="account-field" />
           </label>
         )}
         <label className="grid gap-2 text-sm font-semibold">
@@ -102,27 +103,16 @@ export default function AuthForm({ register = false, registered = false }: {
           {register && <p id="password-help" className="text-sm text-muted">Gunakan minimal 12 karakter.</p>}
         </div>
         {error && <p role="alert" className="notice-error">{error}</p>}
-        <button disabled={pending} className={register ? "action-primary" : "action-gold account-submit"}>
+        <button disabled={pending} className="action-gold account-submit">
           {pending ? "Memproses…" : heading}
         </button>
       </form>
-      {register ? (
-        <Link href="/masuk" className="mt-4 flex min-h-11 items-center text-brand underline">Sudah punya akun? Masuk</Link>
-      ) : (
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-          <span className="text-sm text-muted">Belum punya akun?</span>
-          <Link href="/daftar" className="account-register">Daftar sekarang</Link>
-        </div>
-      )}
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+        <span className="text-sm text-muted">{register ? "Sudah punya akun?" : "Belum punya akun?"}</span>
+        <Link href={register ? "/masuk" : "/daftar"} className="account-register">
+          {register ? "Masuk" : "Daftar sekarang"}
+        </Link>
+      </div>
     </>
-  );
-
-  if (!register) return form;
-
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-5 px-5 py-8">
-      <Brand />
-      <div className="panel border-t-2 border-t-gold">{form}</div>
-    </main>
   );
 }
