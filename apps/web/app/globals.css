@@ -116,7 +116,7 @@
     @apply min-h-11 w-full flex-1 rounded-md bg-transparent px-3;
   }
   .account-password-toggle {
-    @apply min-h-11 shrink-0 rounded-lg bg-canvas px-3 text-xs font-semibold text-brand-deep hover:bg-success-soft motion-safe:transition-colors;
+    @apply grid size-11 shrink-0 place-items-center rounded-lg text-brand-deep hover:bg-attention-soft motion-safe:transition-colors;
   }
   .account-submit {
     @apply mt-1 min-h-14 w-full rounded-xl text-base;
