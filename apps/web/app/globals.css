@@ -129,3 +129,12 @@
     @apply inline-flex min-h-11 items-center rounded-xl border border-attention/35 bg-attention-soft px-4 text-sm font-bold text-attention hover:border-attention hover:bg-white motion-safe:transition-colors;
   }
 }
+
+@layer components {
+  .account-field[aria-invalid="true"], .account-password[data-invalid="true"] {
+    @apply border-danger;
+  }
+  .account-field::placeholder, .account-password input::placeholder {
+    @apply text-muted;
+  }
+}

@@ -1,5 +1,10 @@
-import { PageSkeleton } from "../skeleton";
+import AccountShell from "../account-shell";
+import { SkeletonRows } from "../skeleton";
 
 export default function Loading() {
-  return <PageSkeleton kind="form" />;
+  return (
+    <AccountShell register>
+      <SkeletonRows label="Memuat halaman daftar…" rows={5} />
+    </AccountShell>
+  );
 }
