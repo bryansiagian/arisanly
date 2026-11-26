@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { authAPI } from "../../lib/auth-api";
 import Brand from "../brand";
 import Groups from "./groups";
-import Logout from "./logout";
+import AccountMenu from "./account-menu";
 import Reminders from "./reminders";
 
 export default async function DashboardPage() {
@@ -22,11 +22,7 @@ export default async function DashboardPage() {
       <a href="#konten" className="sr-only focus:not-sr-only focus:inline-flex focus:py-3">Lewati ke konten</a>
       <header className="dashboard-nav flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line py-3">
         <Brand />
-        <Logout />
-        <nav aria-label="Navigasi dasbor" className="order-last flex w-full flex-wrap items-center gap-x-5 sm:order-none sm:w-auto">
-          <a className="dashboard-link" href="#kelompok">Kelompok</a>
-          <a className="dashboard-link" href="#pengingat" aria-controls="pengingat">Pengingat</a>
-        </nav>
+        <AccountMenu name={user.name} email={user.email} />
       </header>
       <main id="konten" tabIndex={-1} className="pb-12 pt-5 sm:pt-8">
         <div className="dashboard-masthead relative isolate overflow-hidden border-b border-line py-7 sm:py-11">
